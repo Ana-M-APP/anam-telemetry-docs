@@ -1,6 +1,6 @@
 # Event catalog (human mirror)
 
-**Catalog version:** `0.2.1`  
+**Catalog version:** `0.2.2`  
 **Machine SoT:** [`events.yaml`](./events.yaml) — typed codegen reads YAML only.  
 **Isolation:** [`isolation.md`](./isolation.md) — telemetry must not block essential ops.  
 **Repo:** `Ana-M-APP/anam-telemetry-docs` (authoritative). Consumer package: `@anam/telemetry`.
@@ -31,4 +31,33 @@ Use `trackStripeWebhookBilling` / `trackStripeBillingEvent` from `@anam/telemetr
 ## Identity
 
 Ana M UID = Mixpanel `distinct_id` / `$user_id` = GA4 `user_id` = Sentry `user.id`.  
-Account = Mixpanel Group / `anam_account_id` — never person identity.
+Account = Mixpanel Group key `account_id` — never person identity.
+
+### Mixpanel People (`people.set` on identify)
+
+Send **only** when non-empty (omit undefined / `''` / literal `"undefined"`):
+
+| Prop | Source |
+| --- | --- |
+| `$name` | `name` / `userName` |
+| `$email` | `email` / `userEmail` |
+| `$phone` | `phone` / `phoneNumber` |
+| `$created` | `signupAt` / `userCreatedAt` |
+| `anam_user_id` | Ana M UID |
+| `origin` | Users.origin |
+| `profession` | membership.params.profession |
+| `field_of_work` | membership.params.fieldOfWork |
+| `language` | i18n language |
+
+Email/name/phone belong on **People**, not on product event properties.
+
+### GA4 `user_properties` (gtag `set`)
+
+| Prop | Notes |
+| --- | --- |
+| `name`, `email`, `phone` | Professional identity when available |
+| `anam_user_id` | Same Ana M UID as `user_id` |
+| `account_id` | Selected account (also Mixpanel Group) |
+| `origin`, `profession`, `field_of_work`, `language`, `signup_at` | Stable profile attrs |
+
+No clinical keys (patient/handbook/session/transcript/notes/diagnosis).

@@ -4,7 +4,7 @@
 # Consumers: Ana-M-APP/anam-telemetry generates typed TS from this YAML.
 
 catalog:
-  version: "0.2.1"
+  version: "0.2.2"
   schema_version: 1
   notes: >
     SoT for Ana M product analytics. Consumed by @anam/telemetry (codegen).
@@ -12,8 +12,38 @@ catalog:
     (webhooks → Mixpanel + GA4 with Ana M UID). Stripe Marketplace only
     configures Mixpanel projects — product billing events are emitted by
     anam-telemetry, NOT the marketplace app. Dedupe by Stripe event id.
-    Isolation contract (telemetry must not block auth/payments/reconciliation/access):
-    telemetry/isolation.md — do not fork conflicting copies.
+    Identity People / user_properties allowlist lives under `identity:` below
+    (not event destinations). Empty/undefined values must be omitted at emit.
+
+# Professional identity only (no clinical PII). Used by Mixpanel people.set
+# and GA4 user_properties on identify/trackUser — not as event params.
+identity:
+  mixpanel_people:
+    - $name
+    - $email
+    - $phone
+    - $created
+    - anam_user_id
+    - origin
+    - profession
+    - field_of_work
+    - language
+  ga4_user_properties:
+    - name
+    - email
+    - phone
+    - anam_user_id
+    - account_id
+    - origin
+    - profession
+    - field_of_work
+    - language
+    - signup_at
+  notes: >
+    Person identity = Ana M UID (Mixpanel distinct_id/$user_id, GA4 user_id).
+    Account = Mixpanel Group key account_id only (also mirrored as GA4
+    user_property account_id when selected). Do not invent props beyond this
+    allowlist. Omit null/undefined/empty/"undefined" string values.
 
 destinations:
   - mixpanel
