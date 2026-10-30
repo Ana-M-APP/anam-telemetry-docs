@@ -1,0 +1,15 @@
+---
+description: Mandatory telemetry isolation from auth, payments, reconciliation and access
+alwaysApply: true
+---
+
+Before changing or reviewing telemetry, analytics adapters, Mixpanel/GA4/Intercom
+product emits, Sentry feedback, or identity enrichment for analytics, read and
+follow `telemetry/isolation.md` in this repository and the monorepo root
+`AGENTS.md` optional-integration hard rule.
+
+Telemetry (including enrichment/prep) must not block essential Ana M ops.
+`catch` is not isolation if the critical path still waits. Best-effort is not
+guaranteed delivery. Analytics absence must not remove financial or audit
+records. Related changes require failure-path tests that preserve auth, payment,
+reconciliation and access outcomes.
