@@ -1,0 +1,40 @@
+---
+description: Event and prop identifiers must be English snake_case with anam_ for Ana customs
+alwaysApply: true
+---
+
+# Telemetry English naming (hard rule)
+
+Event names and custom property keys in the Ana M catalog and `@anam/telemetry`
+emits MUST be **English** `snake_case`. Portuguese (or other non-English) words
+in identifiers are **forbidden**.
+
+## Rules
+
+1. **Language:** identifiers = English only. User-facing copy may stay i18n PT/ES;
+   Mixpanel/GA keys never do.
+2. **Ana custom props:** prefix `anam_` (e.g. `anam_invoice_amount`,
+   `anam_currency`, `anam_plan_id`, `anam_last_login_at`).
+3. **Platform / vendor reserved:** keep vendor-native names
+   (`$name`, `$email`, `user_id`, `insert_id`, Mixpanel Group key `account_id`,
+   `stripe_customer_id`). Do not invent bare Ana names that collide with vendors.
+4. **Dual Mixpanel/GA:** when the vendor has a built-in, map purpose → reserved
+   on that platform and `anam_*` (or GA dual) on the other. Document both in
+   `telemetry/events.md` dual table.
+5. **Suggest good names:** prefer precise domain English over literal translation.
+   - Amount from a Stripe **invoice** → `anam_invoice_amount` (not `anam_valor`,
+     not `anam_session_cost` — that would imply clinical session pricing).
+   - ISO currency → `anam_currency` (not `anam_moeda`).
+   - Stripe Price / plan id → `anam_plan_id` (not `anam_plano` / bare `plano`).
+6. **Before adding a prop:** update `telemetry/events.yaml` / `events.md`, then
+   sync `@anam/telemetry`. Never ship Portuguese leftovers "temporarily".
+
+## Forbidden examples
+
+| Bad | Good |
+| --- | --- |
+| `anam_valor` / `valor` | `anam_invoice_amount` (or `anam_session_cost` only if truly session fee) |
+| `anam_moeda` / `moeda` | `anam_currency` |
+| `anam_plano` / `plano` | `anam_plan_id` or `anam_plan` when the value is a product plan name |
+
+See also: `.cursor/rules/telemetry-isolation.mdc`, `telemetry/isolation.md`.
