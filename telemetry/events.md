@@ -1,6 +1,6 @@
 # Event catalog (human mirror)
 
-**Catalog version:** `0.2.4`  
+**Catalog version:** `0.2.5`  
 **Machine SoT:** [`events.yaml`](./events.yaml) — typed codegen reads YAML only.  
 **Isolation:** [`isolation.md`](./isolation.md) — telemetry must not block essential ops.  
 **Repo:** `Ana-M-APP/anam-telemetry-docs` (authoritative). Consumer package: `@anam/telemetry`.
@@ -24,7 +24,7 @@ by `@anam/telemetry` from Stripe webhooks with Ana M UID.
 | `stripe_subscription_updated` | both | same | Stripe Event.id |
 | `stripe_subscription_deleted` | both | same | Stripe Event.id |
 
-**Props:** `stripe_customer_id`, `anam_account_id`, `anam_valor` (major units), `anam_moeda`, `anam_plano`.
+**Props:** `stripe_customer_id`, `anam_account_id`, `anam_invoice_amount` (major units; Stripe invoice amount, not session cost), `anam_currency`, `anam_plan_id`.
 
 Use `trackStripeWebhookBilling` / `trackStripeBillingEvent` from `@anam/telemetry/server`.
 
@@ -32,7 +32,8 @@ Use `trackStripeWebhookBilling` / `trackStripeBillingEvent` from `@anam/telemetr
 
 Ana M UID = Mixpanel `distinct_id` / `$user_id` = GA4 `user_id` = Sentry `user.id`.  
 Account = Mixpanel Group key `account_id` — never person identity.  
-**Rule:** Ana-invented props use `anam_*`. Platform reserved names stay vendor-native.
+**Rule:** Ana-invented props use `anam_*` English snake_case. Portuguese in
+identifiers is forbidden. Platform reserved names stay vendor-native.
 
 ### Mixpanel People (`people.set` on identify)
 
@@ -77,3 +78,6 @@ No clinical keys (patient/handbook/session/transcript/notes/diagnosis).
 | Last product login | People `anam_last_login_at` | user_property `anam_last_login_at` |
 | Account | Group key `account_id` | user_property `anam_account_id` |
 | Origin / profession / field / language | People `anam_*` | user_property `anam_*` |
+| Stripe invoice amount (major units) | event `anam_invoice_amount` | event `anam_invoice_amount` |
+| Currency (ISO 4217) | event `anam_currency` | event `anam_currency` |
+| Stripe Price / plan id | event `anam_plan_id` | event `anam_plan_id` |
