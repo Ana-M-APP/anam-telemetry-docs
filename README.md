@@ -10,6 +10,7 @@ Ana M **telemetry** documentation — event catalog SoT + isolation contracts (n
 | [`telemetry/events.md`](./telemetry/events.md) | Human-readable mirror |
 | [`telemetry/isolation.md`](./telemetry/isolation.md) | Shared contract: telemetry must not block auth / payments / reconciliation / access |
 | [`.cursor/rules/telemetry-isolation.mdc`](./.cursor/rules/telemetry-isolation.mdc) | Thin always-on Cursor rule pointing at the isolation contract |
+| [`.cursor/rules/telemetry-english-naming.mdc`](./.cursor/rules/telemetry-english-naming.mdc) | Event/prop identifiers ALWAYS English `anam_*` snake_case; Portuguese forbidden |
 
 **Consumer:** [`Ana-M-APP/anam-telemetry`](https://github.com/Ana-M-APP/anam-telemetry) runs `catalog:generate` / `catalog:sync` to produce typed TypeScript and publish `@anam/telemetry`.
 
