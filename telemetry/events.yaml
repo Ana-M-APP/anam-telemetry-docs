@@ -4,7 +4,7 @@
 # Consumers: Ana-M-APP/anam-telemetry generates typed TS from this YAML.
 
 catalog:
-  version: "0.2.4"
+  version: "0.2.5"
   schema_version: 1
   notes: >
     SoT for Ana M product analytics. Consumed by @anam/telemetry (codegen).
@@ -51,7 +51,10 @@ identity:
     from Users.lastLoginAt (prefer SetupTrackers lastLoginAt over Intercom
     dd/MM/yyyy userLastLoginAt). Do not invent props beyond this allowlist.
     Omit null/undefined/empty/"undefined" string values. Geo IP remains off
-    (Mixpanel browser ip:false).
+    (Mixpanel browser ip:false). Event and custom prop identifiers MUST be
+    English snake_case; Portuguese in identifiers is forbidden. Stripe billing
+    event props: anam_invoice_amount (invoice major units, not session cost),
+    anam_currency, anam_plan_id.
 
 destinations:
   - mixpanel
