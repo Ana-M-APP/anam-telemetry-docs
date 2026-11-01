@@ -1,39 +1,45 @@
 # Event catalog (human mirror)
 
-**Catalog version:** `0.2.5`  
+**Catalog version:** `0.3.0`  
 **Machine SoT:** [`events.yaml`](./events.yaml) — typed codegen reads YAML only.  
-**Isolation:** [`isolation.md`](./isolation.md) — telemetry must not block essential ops.  
 **Repo:** `Ana-M-APP/anam-telemetry-docs` (authoritative). Consumer package: `@anam/telemetry`.
 
-## Seasonal / product moments
+## Wave-1 product events (`anam_*`)
 
-| Event | Destinations | Where | Measure |
-| --- | --- | --- | --- |
-| `halloween_easter_egg_clicked` | both (Mixpanel + GA4) | fe | Logo click that successfully shows the Halloween ghost (once per show) |
+| Event | Destinations | Props (snake_case; may omit `anam_`) |
+| --- | --- | --- |
+| `anam_account_created` | both (BE SoT) | `source`, `account_id`, `profession?`, `field_of_work?`, `sessions_per_month?`, `session_value?` |
+| `anam_account_create_failed` | Mixpanel | `message`, `error_code` |
+| `anam_user_email_change_requested` | Mixpanel | (none) |
+| `anam_user_email_changed` | Mixpanel | (none) — NEW on confirm |
+| `anam_user_password_changed` | Mixpanel | (none) |
+| `anam_easter_egg` | both | `theme` (e.g. `halloween`) |
+| `anam_login_completed` | both | (none); GA4 native `login` |
+| `anam_login_failed` | Mixpanel | `error_code`, `error_message` |
+| `anam_password_reset_email_sent` | Mixpanel | (none) |
+| `anam_password_reset_completed` | Mixpanel | (none) |
+| `anam_signed_up` | both (BE SoT) | `source`, `origin`; GA4 native `sign_up` |
+| `anam_signup_failed` | Mixpanel | `source`, `origin`, `error_code`, `error_message` |
+| `anam_billing_invoice_paid` | both | `amount`, `currency`, `account_id`, `stripe_customer_id`, `source`; GA4 `purchase` |
+| `anam_billing_invoice_payment_failed` | both | same billing props; no `plan` / `plan_id` |
+| `anam_subscription_trial_started` | both | `operation`, `account_id`, `user_id`, `stripe_customer_id` |
 
-## Stripe billing (anam-telemetry)
-
-Marketplace **only configures** Mixpanel projects. Product billing facts are emitted
-by `@anam/telemetry` from Stripe webhooks with Ana M UID.
+## Stripe subscription lifecycle (unchanged names this wave)
 
 | Event | Destinations | GA4 name | Dedupe |
 | --- | --- | --- | --- |
-| `stripe_invoice_paid` | both | `purchase` | Stripe Event.id |
-| `stripe_invoice_payment_failed` | both | same | Stripe Event.id |
 | `stripe_subscription_created` | both | same | Stripe Event.id |
 | `stripe_subscription_updated` | both | same | Stripe Event.id |
 | `stripe_subscription_deleted` | both | same | Stripe Event.id |
-
-**Props:** `stripe_customer_id`, `anam_account_id`, `anam_invoice_amount` (major units; Stripe invoice amount, not session cost), `anam_currency`, `anam_plan_id`.
 
 Use `trackStripeWebhookBilling` / `trackStripeBillingEvent` from `@anam/telemetry/server`.
 
 ## Identity
 
 Ana M UID = Mixpanel `distinct_id` / `$user_id` = GA4 `user_id` = Sentry `user.id`.  
-Account = Mixpanel Group key `account_id` — never person identity.  
-**Rule:** Ana-invented props use `anam_*` English snake_case. Portuguese in
-identifiers is forbidden. Platform reserved names stay vendor-native.
+Account = Mixpanel Group key `anam_account_id` — never person identity.  
+**Rule:** Ana-invented identity props use `anam_*`. Event props may omit `anam_`.  
+Portuguese in identifiers is forbidden. Platform reserved names stay vendor-native.
 
 ### Mixpanel People (`people.set` on identify)
 
@@ -46,14 +52,12 @@ Send **only** when non-empty (omit undefined / `''` / literal `"undefined"`):
 | `$phone` | Mixpanel reserved | `phone` / `phoneNumber` |
 | `$created` | Mixpanel reserved | `signupAt` / `userCreatedAt` |
 | `anam_user_id` | Ana custom | Ana M UID |
-| `anam_origin` | Ana custom | Users.origin |
-| `anam_profession` | Ana custom | membership.params.profession |
-| `anam_field_of_work` | Ana custom | membership.params.fieldOfWork |
-| `anam_language` | Ana custom | i18n language |
 | `anam_last_login_at` | Ana custom | ISO8601 `Users.lastLoginAt` |
 
+**Removed from Mixpanel/GA this wave:** `origin`, `profession`, `field_of_work`, `language` (Intercom `anam_member_*` / `anam_signup_origin` only).
+
 Email/name/phone belong on **People**, not on product event properties.  
-Mixpanel browser geo stays off (`ip: false`) — do not set `$country_code` / `$region` / `$city`.
+Mixpanel browser geo stays off (`ip: false`).
 
 ### GA4 `user_properties` (gtag `set`)
 
@@ -61,10 +65,9 @@ Mixpanel browser geo stays off (`ip: false`) — do not set `$country_code` / `$
 | --- | --- | --- |
 | `name`, `email`, `phone` | Dual of Mixpanel `$name` / `$email` / `$phone` | No GA reserved People equivalents |
 | `anam_user_id` | Ana custom (+ dual of `user_id`) | Same Ana M UID as gtag/MP `user_id` |
-| `anam_account_id` | Ana custom | Selected account (Mixpanel Group key remains `account_id`) |
-| `anam_origin`, `anam_profession`, `anam_field_of_work`, `anam_language`, `anam_signup_at`, `anam_last_login_at` | Ana custom | Stable profile attrs |
-
-No clinical keys (patient/handbook/session/transcript/notes/diagnosis).
+| `anam_account_id` | Ana custom | Selected account (Group key also `anam_account_id`) |
+| `anam_signup` | Ana custom | Dual of Mixpanel `$created` |
+| `anam_last_login_at` | Ana custom | ISO8601 last product login |
 
 ### Dual naming (purpose → Mixpanel → GA4)
 
@@ -74,10 +77,16 @@ No clinical keys (patient/handbook/session/transcript/notes/diagnosis).
 | Display name | People `$name` | user_property `name` |
 | Email | People `$email` | user_property `email` |
 | Phone | People `$phone` | user_property `phone` |
-| Signup / created at | People `$created` | user_property `anam_signup_at` |
+| Signup / created at | People `$created` | user_property `anam_signup` |
 | Last product login | People `anam_last_login_at` | user_property `anam_last_login_at` |
-| Account | Group key `account_id` | user_property `anam_account_id` |
-| Origin / profession / field / language | People `anam_*` | user_property `anam_*` |
-| Stripe invoice amount (major units) | event `anam_invoice_amount` | event `anam_invoice_amount` |
-| Currency (ISO 4217) | event `anam_currency` | event `anam_currency` |
-| Stripe Price / plan id | event `anam_plan_id` | event `anam_plan_id` |
+| Account | Group key `anam_account_id` | user_property `anam_account_id` |
+| Stripe invoice amount | event `amount` | event `amount` |
+| Currency (ISO 4217) | event `currency` | event `currency` |
+
+## Sentry
+
+| Field | Value |
+| --- | --- |
+| `user.id` | Ana M Firebase UID |
+| tag `anam_account_id` | selected / route account (singular; not `user.id`) |
+| `sendDefaultPii` | `false` |
