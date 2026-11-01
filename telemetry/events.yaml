@@ -1,1 +1,267 @@
-# placeholder
+# Ana M product analytics event catalog (machine SoT).
+# Human mirror: events.md. Typed consumer: @anam/telemetry catalog module.
+# Source of truth host: Ana-M-APP/anam-telemetry-docs (this file).
+# Consumers: @anam/telemetry (monorepo packages/telemetry) generates typed TS from this YAML.
+
+catalog:
+  version: "0.3.0"
+  schema_version: 1
+  notes: >
+    SoT for Ana M product analytics. Consumed by @anam/telemetry (codegen).
+    Wave-1 rename: product events use anam_* English snake_case with market
+    participle/state (*_created / *_completed / *_failed). Event props may omit
+    anam_ prefix (account_id, amount, …). Identity People / user_properties
+    allowlist lives under `identity:` (Mixpanel/GA no longer receive origin /
+    profession / field_of_work / language — those are Intercom member_* only).
+    Stripe Marketplace only configures Mixpanel projects — product billing
+    events are emitted by anam-telemetry, NOT the marketplace app. Dedupe by
+    Stripe event id. Empty/undefined values must be omitted at emit.
+
+# Professional identity only (no clinical PII). Used by Mixpanel people.set
+# and GA4 user_properties on identify/trackUser — not as event params.
+identity:
+  mixpanel_people:
+    - $name
+    - $email
+    - $phone
+    - $created
+    - anam_user_id
+    - anam_last_login_at
+  ga4_user_properties:
+    - name
+    - email
+    - phone
+    - anam_user_id
+    - anam_account_id
+    - anam_signup
+    - anam_last_login_at
+  notes: >
+    Person identity = Ana M UID (Mixpanel distinct_id/$user_id, GA4 user_id).
+    Account = Mixpanel Group key anam_account_id (mirrored as GA4
+    user_property anam_account_id). Ana custom props MUST use anam_* —
+    never bare invented names. Platform reserved ($name/$email/$phone/
+    $created, GA user_id) keep vendor names; GA name/email/phone are the
+    dual of Mixpanel $name/$email/$phone. GA signup dual of Mixpanel
+    $created is anam_signup (ISO8601). anam_last_login_at is ISO8601 from
+    Users.lastLoginAt. Do NOT send origin/profession/field_of_work/language
+    on Mixpanel/GA (Intercom-only member_* attrs). Omit null/undefined/empty/
+    "undefined" string values. Geo IP remains off (Mixpanel browser ip:false).
+    Event and custom prop identifiers MUST be English snake_case. Stripe
+    billing event props: amount (invoice major units), currency, account_id,
+    stripe_customer_id, source — no plan / plan_id in this wave.
+
+destinations:
+  - mixpanel
+  - ga4
+  - both
+  - ops_only
+  - none
+
+events:
+  page_viewed:
+    destinations: ga4
+    ga4_name: page_view
+    where: fe
+  signup_started:
+    destinations: mixpanel
+    where: fe
+  anam_signup_failed:
+    destinations: mixpanel
+    where: fe
+  anam_signed_up:
+    destinations: both
+    ga4_name: sign_up
+    where: be
+  anam_account_created:
+    destinations: both
+    ga4_name: anam_account_created
+    where: be
+  anam_login_completed:
+    destinations: both
+    ga4_name: login
+    where: fe
+  onboarding_step_completed:
+    destinations: mixpanel
+    where: fe
+  onboarding_completed:
+    destinations: mixpanel
+    where: fe
+  anam_subscription_trial_started:
+    destinations: both
+    ga4_name: anam_subscription_trial_started
+    where: be
+
+  # Stripe billing (anam-telemetry webhooks — Mixpanel + GA4, Ana M UID)
+  anam_billing_invoice_paid:
+    destinations: both
+    ga4_name: purchase
+    where: be
+  anam_billing_invoice_payment_failed:
+    destinations: both
+    ga4_name: anam_billing_invoice_payment_failed
+    where: be
+  stripe_subscription_created:
+    destinations: both
+    ga4_name: stripe_subscription_created
+    where: be
+  stripe_subscription_updated:
+    destinations: both
+    ga4_name: stripe_subscription_updated
+    where: be
+  stripe_subscription_deleted:
+    destinations: both
+    ga4_name: stripe_subscription_deleted
+    where: be
+
+  # Gold lifecycle aliases still usable when domain emits them directly
+  first_subscription_paid:
+    destinations: both
+    ga4_name: first_subscription_paid
+    where: be
+  refund:
+    destinations: both
+    ga4_name: refund
+    where: be
+  subscription_cancelled:
+    destinations: both
+    ga4_name: subscription_cancelled
+    where: be
+  subscription_reactivated:
+    destinations: both
+    ga4_name: subscription_reactivated
+    where: be
+  subscription_plan_changed:
+    destinations: both
+    ga4_name: subscription_plan_changed
+    where: be
+  purchase:
+    destinations: both
+    ga4_name: purchase
+    where: be
+
+  anam_account_create_failed:
+    destinations: mixpanel
+    where: fe
+  account_deleted_block_reactivate_failed:
+    destinations: mixpanel
+    where: fe
+  account_deleted_block_reactivate_success:
+    destinations: mixpanel
+    where: fe
+  account_deletion_abandoned:
+    destinations: mixpanel
+    where: fe
+  account_deletion_confirmed:
+    destinations: mixpanel
+    where: fe
+  account_deletion_export_requested:
+    destinations: mixpanel
+    where: fe
+  account_deletion_failed:
+    destinations: mixpanel
+    where: fe
+  account_deletion_requested:
+    destinations: mixpanel
+    where: be
+  account_deletion_reverted:
+    destinations: mixpanel
+    where: be
+  account_switched:
+    destinations: mixpanel
+    where: fe
+  account_assistant_access_suspended:
+    destinations: mixpanel
+    where: both
+  account_assistant_invite_accepted:
+    destinations: mixpanel
+    where: both
+  account_assistant_invite_cancelled:
+    destinations: mixpanel
+    where: both
+  account_assistant_invite_sent:
+    destinations: mixpanel
+    where: both
+  account_assistant_login:
+    destinations: mixpanel
+    where: both
+  configuration_preferences_updated_error:
+    destinations: mixpanel
+    where: fe
+  configuration_preferences_updated_success:
+    destinations: mixpanel
+    where: fe
+  anam_login_failed:
+    destinations: mixpanel
+    where: fe
+  password_reset_email_sent_error:
+    destinations: mixpanel
+    where: fe
+  anam_password_reset_email_sent:
+    destinations: mixpanel
+    where: fe
+  password_reset_error:
+    destinations: mixpanel
+    where: fe
+  anam_password_reset_completed:
+    destinations: mixpanel
+    where: fe
+  anam_user_email_change_requested:
+    destinations: mixpanel
+    where: fe
+  anam_user_email_changed:
+    destinations: mixpanel
+    where: fe
+  anam_user_password_changed:
+    destinations: mixpanel
+    where: fe
+
+  # Seasonal FE easter egg (theme prop, e.g. halloween)
+  anam_easter_egg:
+    destinations: both
+    ga4_name: anam_easter_egg
+    where: fe
+
+aliases:
+  signup: anam_signed_up
+  sign_up: anam_signed_up
+  account_created: anam_account_created
+  account_created_success: anam_account_created
+  account_created_error: anam_account_create_failed
+  login: anam_login_completed
+  login_completed: anam_login_completed
+  login_error: anam_login_failed
+  signup_failed: anam_signup_failed
+  signup_error: anam_signup_failed
+  password_reset_email_sent_success: anam_password_reset_email_sent
+  password_reset_success: anam_password_reset_completed
+  account_email_change_requested: anam_user_email_change_requested
+  profile_email_change_requested: anam_user_email_change_requested
+  account_password_changed: anam_user_password_changed
+  profile_password_changed: anam_user_password_changed
+  halloween_easter_egg_clicked: anam_easter_egg
+  stripe_invoice_paid: anam_billing_invoice_paid
+  stripe_invoice_payment_failed: anam_billing_invoice_payment_failed
+  trial_started: anam_subscription_trial_started
+  stripe_subscription_trial_created: anam_subscription_trial_started
+  assistant_access_suspended: account_assistant_access_suspended
+  assistant_invite_accepted: account_assistant_invite_accepted
+  assistant_invite_cancelled: account_assistant_invite_cancelled
+  assistant_invite_sent: account_assistant_invite_sent
+  assistant_login: account_assistant_login
+  # Stripe webhook type → catalog event (when callers pass raw Stripe type strings)
+  "invoice.paid": anam_billing_invoice_paid
+  "invoice.payment_succeeded": anam_billing_invoice_paid
+  "invoice.payment_failed": anam_billing_invoice_payment_failed
+  "customer.subscription.created": stripe_subscription_created
+  "customer.subscription.updated": stripe_subscription_updated
+  "customer.subscription.deleted": stripe_subscription_deleted
+
+fe_suppressed:
+  - account_created_success
+  - account_created
+  - anam_account_created
+  - sign_up
+  - anam_signed_up
+  - signup
+  - enterprise_account_created_success
+  - enterprise_account_created_error
