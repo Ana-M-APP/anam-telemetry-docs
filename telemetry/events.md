@@ -1,8 +1,39 @@
 # Event catalog (human mirror)
 
-**Catalog version:** `0.3.0`  
+**Catalog version:** `0.4.1`  
 **Machine SoT:** [`events.yaml`](./events.yaml) — typed codegen reads YAML only.  
 **Repo:** `Ana-M-APP/anam-telemetry-docs` (authoritative). Consumer package: `@anam/telemetry`.
+
+**Policy:** only Christian-liberated checklist `live` events fan out to Mixpanel/GA4.
+HOLD / in-review catalog rows use `destinations: none` (suspended).
+
+**Status:** [`status-checklist.md`](./status-checklist.md) (live vs in review) · [`roadmap.md`](./roadmap.md)
+
+## Customer + sessions (`0.4.0`)
+
+`customer` = attended party (handbook/patient in current health product). Soft-delete session = `archived`. Session completeness = clinical record generation (`enhance` module → `anam_clinical_record_*`). Approving a registration form also emits `anam_customer_created`. No clinical content / patient IDs in props.
+
+| Event | Destinations | Props |
+| --- | --- | --- |
+| `anam_customer_created` | both (BE SoT) | `account_id`, `source` |
+| `anam_customer_create_failed` | Mixpanel | `account_id`, `error_code`, `error_message` |
+| `anam_customer_updated` | Mixpanel | `account_id`, `fields_changed?` |
+| `anam_customer_archived` | Mixpanel | `account_id` |
+| `anam_customer_unarchived` | Mixpanel | `account_id` |
+| `anam_customer_registration_form_approved` | Mixpanel | `account_id` |
+| `anam_customer_registration_form_shared` | Mixpanel | `account_id`, `channel?` |
+| `anam_session_created` | both (BE SoT) | `account_id`, `batch?`, `count?` |
+| `anam_session_create_failed` | Mixpanel | `account_id`, `error_code`, `error_message` |
+| `anam_session_updated` | Mixpanel | `account_id` |
+| `anam_session_archived` | Mixpanel | `account_id`, `batch?`, `count?` |
+| `anam_session_payment_updated` | Mixpanel | `account_id`, `payment_status` |
+| `anam_clinical_record_requested` | Mixpanel | `account_id` |
+| `anam_clinical_record_created` | both (BE SoT) | `account_id` |
+| `anam_clinical_record_failed` | Mixpanel | `account_id`, `error_code` |
+| `anam_session_recording_started` | Mixpanel (FE) | `account_id` |
+| `anam_session_recording_completed` | Mixpanel (FE) | `account_id`, `duration` |
+| `anam_session_transcription_completed` | Mixpanel (BE) | `account_id` |
+| `anam_session_exported` | Mixpanel (FE) | `account_id`, `export_type` |
 
 ## Wave-1 product events (`anam_*`)
 
@@ -52,12 +83,22 @@ Send **only** when non-empty (omit undefined / `''` / literal `"undefined"`):
 | `$phone` | Mixpanel reserved | `phone` / `phoneNumber` |
 | `$created` | Mixpanel reserved | `signupAt` / `userCreatedAt` |
 | `anam_user_id` | Ana custom | Ana M UID |
+| `anam_account_id` | Ana custom | Selected account (also Group key) |
+| `anam_signup_origin` | Ana custom | `Users.origin` |
 | `anam_last_login_at` | Ana custom | ISO8601 `Users.lastLoginAt` |
+| `anam_member_profession` | Ana custom | Active membership.params.profession |
+| `anam_member_field_of_work` | Ana custom | Active membership.params.fieldOfWork |
+| `anam_member_sessions_per_month` | Ana custom | Active membership.params.sessionsPerMonth |
+| `anam_member_role` | Ana custom | `owner` \| `assistant` from membership.role |
+| `anam_member_session_value` | Ana custom | Active membership.params.sessionValue |
 
-**Removed from Mixpanel/GA this wave:** `origin`, `profession`, `field_of_work`, `language` (Intercom `anam_member_*` / `anam_signup_origin` only).
-
+Same `anam_*` identity names as Intercom / GA4. Do **not** emit `language` on People.  
 Email/name/phone belong on **People**, not on product event properties.  
-Mixpanel browser geo stays off (`ip: false`).
+Mixpanel browser geo is on (`ip: true`) for Country/Region/City. Session Replay
+and autocapture use privacy-safe defaults (mask text/inputs; no clinical
+element text). GA4 browser geo depends on GTM + consent on the same `G-`
+stream. Server GA4 MP `ip_override` / Mixpanel `ip` only on user-facing API
+tracks with a real client IP — never Stripe webhooks.
 
 ### GA4 `user_properties` (gtag `set`)
 
@@ -67,7 +108,13 @@ Mixpanel browser geo stays off (`ip: false`).
 | `anam_user_id` | Ana custom (+ dual of `user_id`) | Same Ana M UID as gtag/MP `user_id` |
 | `anam_account_id` | Ana custom | Selected account (Group key also `anam_account_id`) |
 | `anam_signup` | Ana custom | Dual of Mixpanel `$created` |
+| `anam_signup_origin` | Ana custom | `Users.origin` |
 | `anam_last_login_at` | Ana custom | ISO8601 last product login |
+| `anam_member_profession` | Ana custom | Active membership profession |
+| `anam_member_field_of_work` | Ana custom | Active membership field of work |
+| `anam_member_sessions_per_month` | Ana custom | Active membership sessions/month |
+| `anam_member_role` | Ana custom | `owner` \| `assistant` |
+| `anam_member_session_value` | Ana custom | Active membership session value |
 
 ### Dual naming (purpose → Mixpanel → GA4)
 
@@ -78,8 +125,10 @@ Mixpanel browser geo stays off (`ip: false`).
 | Email | People `$email` | user_property `email` |
 | Phone | People `$phone` | user_property `phone` |
 | Signup / created at | People `$created` | user_property `anam_signup` |
+| Signup origin | People `anam_signup_origin` | user_property `anam_signup_origin` |
 | Last product login | People `anam_last_login_at` | user_property `anam_last_login_at` |
-| Account | Group key `anam_account_id` | user_property `anam_account_id` |
+| Account | Group + People `anam_account_id` | user_property `anam_account_id` |
+| Member profession / field / sessions / role / session value | People `anam_member_*` | user_property `anam_member_*` |
 | Stripe invoice amount | event `amount` | event `amount` |
 | Currency (ISO 4217) | event `currency` | event `currency` |
 
