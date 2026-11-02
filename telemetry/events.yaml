@@ -4,18 +4,25 @@
 # Consumers: @anam/telemetry (monorepo packages/telemetry) generates typed TS from this YAML.
 
 catalog:
-  version: "0.3.0"
+  version: "0.4.1"
   schema_version: 1
   notes: >
     SoT for Ana M product analytics. Consumed by @anam/telemetry (codegen).
-    Wave-1 rename: product events use anam_* English snake_case with market
-    participle/state (*_created / *_completed / *_failed). Event props may omit
+    ONLY Christian-liberated (checklist `live`) events may fan out to Mixpanel
+    or GA4. All other catalog rows use destinations: none (suspended) until
+    explicitly liberated — including HOLD deletion/assistants/prefs, pageviews,
+    and Stripe subscription lifecycle stubs. Wave-1 rename: product events use
+    anam_* English snake_case with market participle/state. Event props may omit
     anam_ prefix (account_id, amount, …). Identity People / user_properties
-    allowlist lives under `identity:` (Mixpanel/GA no longer receive origin /
-    profession / field_of_work / language — those are Intercom member_* only).
-    Stripe Marketplace only configures Mixpanel projects — product billing
-    events are emitted by anam-telemetry, NOT the marketplace app. Dedupe by
-    Stripe event id. Empty/undefined values must be omitted at emit.
+    allowlist lives under `identity:` — shared active-account + membership attrs
+    (`anam_account_id`, `anam_signup_origin`, `anam_member_*`) across Mixpanel,
+    GA4, and Intercom. Catalog 0.4.0 adds customer + session product events
+    (`anam_customer_*`, `anam_session_*`); soft-delete session = archived;
+    clinical record enhance module → `anam_clinical_record_*` (requested /
+    created / failed). No clinical content in props. Stripe Marketplace only
+    configures Mixpanel projects —
+    product billing events are emitted by anam-telemetry, NOT the marketplace
+    app. Dedupe by Stripe event id. Empty/undefined values must be omitted at emit.
 
 # Professional identity only (no clinical PII). Used by Mixpanel people.set
 # and GA4 user_properties on identify/trackUser — not as event params.
@@ -26,7 +33,14 @@ identity:
     - $phone
     - $created
     - anam_user_id
+    - anam_account_id
+    - anam_signup_origin
     - anam_last_login_at
+    - anam_member_profession
+    - anam_member_field_of_work
+    - anam_member_sessions_per_month
+    - anam_member_role
+    - anam_member_session_value
   ga4_user_properties:
     - name
     - email
@@ -34,21 +48,33 @@ identity:
     - anam_user_id
     - anam_account_id
     - anam_signup
+    - anam_signup_origin
     - anam_last_login_at
+    - anam_member_profession
+    - anam_member_field_of_work
+    - anam_member_sessions_per_month
+    - anam_member_role
+    - anam_member_session_value
   notes: >
     Person identity = Ana M UID (Mixpanel distinct_id/$user_id, GA4 user_id).
-    Account = Mixpanel Group key anam_account_id (mirrored as GA4
-    user_property anam_account_id). Ana custom props MUST use anam_* —
-    never bare invented names. Platform reserved ($name/$email/$phone/
-    $created, GA user_id) keep vendor names; GA name/email/phone are the
-    dual of Mixpanel $name/$email/$phone. GA signup dual of Mixpanel
-    $created is anam_signup (ISO8601). anam_last_login_at is ISO8601 from
-    Users.lastLoginAt. Do NOT send origin/profession/field_of_work/language
-    on Mixpanel/GA (Intercom-only member_* attrs). Omit null/undefined/empty/
-    "undefined" string values. Geo IP remains off (Mixpanel browser ip:false).
-    Event and custom prop identifiers MUST be English snake_case. Stripe
-    billing event props: amount (invoice major units), currency, account_id,
-    stripe_customer_id, source — no plan / plan_id in this wave.
+    Active account = singular anam_account_id (Mixpanel Group key + People +
+    GA4 user_property). Membership attrs (profession / field_of_work /
+    sessions_per_month / role owner|assistant / session_value) and user-scoped
+    signup_origin / last_login_at are shared with Intercom — same anam_* names.
+    Ana custom props MUST use anam_* — never bare invented names. Platform
+    reserved ($name/$email/$phone/$created, GA user_id) keep vendor names; GA
+    name/email/phone are the dual of Mixpanel $name/$email/$phone. GA signup
+    dual of Mixpanel $created is anam_signup (ISO8601). Omit null/undefined/
+    empty/"undefined" string values. Mixpanel browser geo IP is on (ip:true)
+    for Country/Region/City enrichment; Session Replay + autocapture use
+    privacy-safe defaults (mask all text/inputs; no element text / form
+    values; no canvas/network). GA4 browser geo depends on GTM tag + consent
+    on the same G- stream. GA4 MP / Mixpanel HTTP may set ip_override / ip
+    only on user-facing API tracks with a trusted client IP — never Stripe
+    webhooks. Event and custom prop identifiers MUST be English snake_case.
+    Stripe billing event props: amount (invoice major units), currency,
+    account_id, stripe_customer_id, source — no plan / plan_id in this wave.
+    Do NOT send language on Mixpanel/GA People.
 
 destinations:
   - mixpanel
@@ -59,11 +85,11 @@ destinations:
 
 events:
   page_viewed:
-    destinations: ga4
+    destinations: none
     ga4_name: page_view
     where: fe
   signup_started:
-    destinations: mixpanel
+    destinations: none
     where: fe
   anam_signup_failed:
     destinations: mixpanel
@@ -81,10 +107,10 @@ events:
     ga4_name: login
     where: fe
   onboarding_step_completed:
-    destinations: mixpanel
+    destinations: none
     where: fe
   onboarding_completed:
-    destinations: mixpanel
+    destinations: none
     where: fe
   anam_subscription_trial_started:
     destinations: both
@@ -101,41 +127,41 @@ events:
     ga4_name: anam_billing_invoice_payment_failed
     where: be
   stripe_subscription_created:
-    destinations: both
+    destinations: none
     ga4_name: stripe_subscription_created
     where: be
   stripe_subscription_updated:
-    destinations: both
+    destinations: none
     ga4_name: stripe_subscription_updated
     where: be
   stripe_subscription_deleted:
-    destinations: both
+    destinations: none
     ga4_name: stripe_subscription_deleted
     where: be
 
   # Gold lifecycle aliases still usable when domain emits them directly
   first_subscription_paid:
-    destinations: both
+    destinations: none
     ga4_name: first_subscription_paid
     where: be
   refund:
-    destinations: both
+    destinations: none
     ga4_name: refund
     where: be
   subscription_cancelled:
-    destinations: both
+    destinations: none
     ga4_name: subscription_cancelled
     where: be
   subscription_reactivated:
-    destinations: both
+    destinations: none
     ga4_name: subscription_reactivated
     where: be
   subscription_plan_changed:
-    destinations: both
+    destinations: none
     ga4_name: subscription_plan_changed
     where: be
   purchase:
-    destinations: both
+    destinations: none
     ga4_name: purchase
     where: be
 
@@ -143,64 +169,64 @@ events:
     destinations: mixpanel
     where: fe
   account_deleted_block_reactivate_failed:
-    destinations: mixpanel
+    destinations: none
     where: fe
   account_deleted_block_reactivate_success:
-    destinations: mixpanel
+    destinations: none
     where: fe
   account_deletion_abandoned:
-    destinations: mixpanel
+    destinations: none
     where: fe
   account_deletion_confirmed:
-    destinations: mixpanel
+    destinations: none
     where: fe
   account_deletion_export_requested:
-    destinations: mixpanel
+    destinations: none
     where: fe
   account_deletion_failed:
-    destinations: mixpanel
+    destinations: none
     where: fe
   account_deletion_requested:
-    destinations: mixpanel
+    destinations: none
     where: be
   account_deletion_reverted:
-    destinations: mixpanel
+    destinations: none
     where: be
   account_switched:
-    destinations: mixpanel
+    destinations: none
     where: fe
   account_assistant_access_suspended:
-    destinations: mixpanel
+    destinations: none
     where: both
   account_assistant_invite_accepted:
-    destinations: mixpanel
+    destinations: none
     where: both
   account_assistant_invite_cancelled:
-    destinations: mixpanel
+    destinations: none
     where: both
   account_assistant_invite_sent:
-    destinations: mixpanel
+    destinations: none
     where: both
   account_assistant_login:
-    destinations: mixpanel
+    destinations: none
     where: both
   configuration_preferences_updated_error:
-    destinations: mixpanel
+    destinations: none
     where: fe
   configuration_preferences_updated_success:
-    destinations: mixpanel
+    destinations: none
     where: fe
   anam_login_failed:
     destinations: mixpanel
     where: fe
   password_reset_email_sent_error:
-    destinations: mixpanel
+    destinations: none
     where: fe
   anam_password_reset_email_sent:
     destinations: mixpanel
     where: fe
   password_reset_error:
-    destinations: mixpanel
+    destinations: none
     where: fe
   anam_password_reset_completed:
     destinations: mixpanel
@@ -219,6 +245,70 @@ events:
   anam_easter_egg:
     destinations: both
     ga4_name: anam_easter_egg
+    where: fe
+
+  # Customer (attended party; maps to handbook/patient in current health product)
+  anam_customer_created:
+    destinations: both
+    ga4_name: anam_customer_created
+    where: be
+  anam_customer_create_failed:
+    destinations: mixpanel
+    where: both
+  anam_customer_updated:
+    destinations: mixpanel
+    where: be
+  anam_customer_archived:
+    destinations: mixpanel
+    where: both
+  anam_customer_unarchived:
+    destinations: mixpanel
+    where: both
+  anam_customer_registration_form_approved:
+    destinations: mixpanel
+    where: both
+  anam_customer_registration_form_shared:
+    destinations: mixpanel
+    where: both
+
+  # Sessions (soft-delete = archived; clinical_record = enhance/report generation)
+  anam_session_created:
+    destinations: both
+    ga4_name: anam_session_created
+    where: be
+  anam_session_create_failed:
+    destinations: mixpanel
+    where: both
+  anam_session_updated:
+    destinations: mixpanel
+    where: both
+  anam_session_archived:
+    destinations: mixpanel
+    where: both
+  anam_session_payment_updated:
+    destinations: mixpanel
+    where: both
+  anam_clinical_record_requested:
+    destinations: mixpanel
+    where: both
+  anam_clinical_record_created:
+    destinations: both
+    ga4_name: anam_clinical_record_created
+    where: be
+  anam_clinical_record_failed:
+    destinations: mixpanel
+    where: both
+  anam_session_recording_started:
+    destinations: mixpanel
+    where: fe
+  anam_session_recording_completed:
+    destinations: mixpanel
+    where: fe
+  anam_session_transcription_completed:
+    destinations: mixpanel
+    where: be
+  anam_session_exported:
+    destinations: mixpanel
     where: fe
 
 aliases:
@@ -255,6 +345,29 @@ aliases:
   "customer.subscription.created": stripe_subscription_created
   "customer.subscription.updated": stripe_subscription_updated
   "customer.subscription.deleted": stripe_subscription_deleted
+  # Customer / session legacy → catalog 0.4.0
+  handbook_created_success: anam_customer_created
+  handbook_created_error: anam_customer_create_failed
+  handbook_archived_success: anam_customer_archived
+  handbook_unarchived_success: anam_customer_unarchived
+  handbook_approved_success: anam_customer_registration_form_approved
+  session_created_success: anam_session_created
+  session_batch_created_success: anam_session_created
+  session_created_error: anam_session_create_failed
+  session_updated_success: anam_session_updated
+  session_deleted_success: anam_session_archived
+  session_batch_deleted_success: anam_session_archived
+  session_enhancement_completed: anam_clinical_record_created
+  session_enhanced_success: anam_clinical_record_created
+  session_enhancement_queued: anam_clinical_record_requested
+  session_enhanced_error: anam_clinical_record_failed
+  anam_session_clinical_record_started: anam_clinical_record_requested
+  anam_session_clinical_record_completed: anam_clinical_record_created
+  anam_session_clinical_record_failed: anam_clinical_record_failed
+  session_recording_started: anam_session_recording_started
+  session_recording_completed: anam_session_recording_completed
+  partial_transcription_completed: anam_session_transcription_completed
+  session_pdf_downloaded: anam_session_exported
 
 fe_suppressed:
   - account_created_success
@@ -265,3 +378,12 @@ fe_suppressed:
   - signup
   - enterprise_account_created_success
   - enterprise_account_created_error
+  - anam_customer_created
+  - handbook_created_success
+  - anam_session_created
+  - session_created_success
+  - session_batch_created_success
+  - anam_clinical_record_created
+  - anam_session_clinical_record_completed
+  - session_enhancement_completed
+  - session_enhanced_success
