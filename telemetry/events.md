@@ -2,12 +2,13 @@
 
 **Catalog version:** `0.4.1`  
 **Machine SoT:** [`events.yaml`](./events.yaml) — typed codegen reads YAML only.  
-**Repo:** `Ana-M-APP/anam-telemetry-docs` (authoritative). Consumer package: `@anam/telemetry`.
+**Repo:** `Ana-M-APP/anam-telemetry-docs` (authoritative). Consumer package: `@anam/telemetry`.  
+Índice: [`README.md`](./README.md).
 
 **Policy:** only Christian-liberated checklist `live` events fan out to Mixpanel/GA4.
 HOLD / in-review catalog rows use `destinations: none` (suspended).
 
-**Status:** [`status-checklist.md`](./status-checklist.md) (live vs in review) · [`roadmap.md`](./roadmap.md)
+**Status:** [`status-checklist.md`](./status-checklist.md) · [`roadmap.md`](./roadmap.md) · [`naming.md`](./naming.md) · [`destinations.md`](./destinations.md) · [`contributing.md`](./contributing.md)
 
 ## Customer + sessions (`0.4.0`)
 
@@ -55,87 +56,28 @@ HOLD / in-review catalog rows use `destinations: none` (suspended).
 | `anam_billing_invoice_payment_failed` | both | same billing props; no `plan` / `plan_id` |
 | `anam_subscription_trial_started` | both | `operation`, `account_id`, `user_id`, `stripe_customer_id` |
 
-## Stripe subscription lifecycle (unchanged names this wave)
+## Stripe subscription lifecycle (stubs — `in review`)
+
+Names unchanged this wave; **suspended** until checklist `live` (`destinations: none` in YAML — do not flip silently).
 
 | Event | Destinations | GA4 name | Dedupe |
 | --- | --- | --- | --- |
-| `stripe_subscription_created` | both | same | Stripe Event.id |
-| `stripe_subscription_updated` | both | same | Stripe Event.id |
-| `stripe_subscription_deleted` | both | same | Stripe Event.id |
+| `stripe_subscription_created` | none | same | Stripe Event.id |
+| `stripe_subscription_updated` | none | same | Stripe Event.id |
+| `stripe_subscription_deleted` | none | same | Stripe Event.id |
 
-Use `trackStripeWebhookBilling` / `trackStripeBillingEvent` from `@anam/telemetry/server`.
+Also `none` / `in review`: `purchase`, `refund`, `first_subscription_paid`, `subscription_cancelled` / `_reactivated` / `_plan_changed`.  
+Live billing today: `anam_billing_invoice_paid` / `_payment_failed`, `anam_subscription_trial_started`.
+
+Use `trackStripeWebhookBilling` / `trackStripeBillingEvent` from `@anam/telemetry/server` when liberated.
 
 ## Identity
 
+Tabela mestra (Mixpanel / GA4 / Intercom / Sentry): **[`identity.md`](./identity.md)**.  
+Naming dual reserved: [`naming.md`](./naming.md). Destinos / geo / Replay: [`destinations.md`](./destinations.md).
+
 Ana M UID = Mixpanel `distinct_id` / `$user_id` = GA4 `user_id` = Sentry `user.id`.  
 Account = Mixpanel Group key `anam_account_id` — never person identity.  
-**Rule:** Ana-invented identity props use `anam_*`. Event props may omit `anam_`.  
-Portuguese in identifiers is forbidden. Platform reserved names stay vendor-native.
+Ana-invented identity props use `anam_*`. Event props may omit `anam_`. Portuguese in identifiers is forbidden.
 
-### Mixpanel People (`people.set` on identify)
-
-Send **only** when non-empty (omit undefined / `''` / literal `"undefined"`):
-
-| Prop | Kind | Source |
-| --- | --- | --- |
-| `$name` | Mixpanel reserved | `name` / `userName` |
-| `$email` | Mixpanel reserved | `email` / `userEmail` |
-| `$phone` | Mixpanel reserved | `phone` / `phoneNumber` |
-| `$created` | Mixpanel reserved | `signupAt` / `userCreatedAt` |
-| `anam_user_id` | Ana custom | Ana M UID |
-| `anam_account_id` | Ana custom | Selected account (also Group key) |
-| `anam_signup_origin` | Ana custom | `Users.origin` |
-| `anam_last_login_at` | Ana custom | ISO8601 `Users.lastLoginAt` |
-| `anam_member_profession` | Ana custom | Active membership.params.profession |
-| `anam_member_field_of_work` | Ana custom | Active membership.params.fieldOfWork |
-| `anam_member_sessions_per_month` | Ana custom | Active membership.params.sessionsPerMonth |
-| `anam_member_role` | Ana custom | `owner` \| `assistant` from membership.role |
-| `anam_member_session_value` | Ana custom | Active membership.params.sessionValue |
-
-Same `anam_*` identity names as Intercom / GA4. Do **not** emit `language` on People.  
-Email/name/phone belong on **People**, not on product event properties.  
-Mixpanel browser geo is on (`ip: true`) for Country/Region/City. Session Replay
-and autocapture use privacy-safe defaults (mask text/inputs; no clinical
-element text). GA4 browser geo depends on GTM + consent on the same `G-`
-stream. Server GA4 MP `ip_override` / Mixpanel `ip` only on user-facing API
-tracks with a real client IP — never Stripe webhooks.
-
-### GA4 `user_properties` (gtag `set`)
-
-| Prop | Kind | Notes |
-| --- | --- | --- |
-| `name`, `email`, `phone` | Dual of Mixpanel `$name` / `$email` / `$phone` | No GA reserved People equivalents |
-| `anam_user_id` | Ana custom (+ dual of `user_id`) | Same Ana M UID as gtag/MP `user_id` |
-| `anam_account_id` | Ana custom | Selected account (Group key also `anam_account_id`) |
-| `anam_signup` | Ana custom | Dual of Mixpanel `$created` |
-| `anam_signup_origin` | Ana custom | `Users.origin` |
-| `anam_last_login_at` | Ana custom | ISO8601 last product login |
-| `anam_member_profession` | Ana custom | Active membership profession |
-| `anam_member_field_of_work` | Ana custom | Active membership field of work |
-| `anam_member_sessions_per_month` | Ana custom | Active membership sessions/month |
-| `anam_member_role` | Ana custom | `owner` \| `assistant` |
-| `anam_member_session_value` | Ana custom | Active membership session value |
-
-### Dual naming (purpose → Mixpanel → GA4)
-
-| Purpose | Mixpanel | GA4 |
-| --- | --- | --- |
-| Person id | `distinct_id` / `$user_id` + People `anam_user_id` | `user_id` (+ user_property `anam_user_id`) |
-| Display name | People `$name` | user_property `name` |
-| Email | People `$email` | user_property `email` |
-| Phone | People `$phone` | user_property `phone` |
-| Signup / created at | People `$created` | user_property `anam_signup` |
-| Signup origin | People `anam_signup_origin` | user_property `anam_signup_origin` |
-| Last product login | People `anam_last_login_at` | user_property `anam_last_login_at` |
-| Account | Group + People `anam_account_id` | user_property `anam_account_id` |
-| Member profession / field / sessions / role / session value | People `anam_member_*` | user_property `anam_member_*` |
-| Stripe invoice amount | event `amount` | event `amount` |
-| Currency (ISO 4217) | event `currency` | event `currency` |
-
-## Sentry
-
-| Field | Value |
-| --- | --- |
-| `user.id` | Ana M Firebase UID |
-| tag `anam_account_id` | selected / route account (singular; not `user.id`) |
-| `sendDefaultPii` | `false` |
+Allowlist machine: bloco `identity:` em [`events.yaml`](./events.yaml) (`0.4.1`).

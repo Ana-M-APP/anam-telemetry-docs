@@ -1,9 +1,9 @@
 # Roadmap telemetria Ana M
 
 Atualizado: 2026-11-02 (America/Sao_Paulo).  
-**SoT:** este arquivo em `Ana-M-APP/anam-telemetry-docs`. Fonte de decisões: worksheets + prefs do Project.
+**SoT:** este arquivo em `Ana-M-APP/anam-telemetry-docs`. Fonte de decisões: worksheets + prefs do Project (histórico); dia a dia = este repo.
 
-Status operacional por evento: [`status-checklist.md`](./status-checklist.md). Catálogo machine: [`events.yaml`](./events.yaml).
+Índice: [`README.md`](./README.md). Status por evento: [`status-checklist.md`](./status-checklist.md). Catálogo: [`events.yaml`](./events.yaml). Naming / identity / destinos: [`naming.md`](./naming.md) · [`identity.md`](./identity.md) · [`destinations.md`](./destinations.md).
 
 ---
 
@@ -54,14 +54,17 @@ Status operacional por evento: [`status-checklist.md`](./status-checklist.md). C
 
 ## Regras já cristalizadas (não reabrir sem MITM)
 
+Detalhe normativo: [`naming.md`](./naming.md) · [`identity.md`](./identity.md) · [`destinations.md`](./destinations.md) · [`isolation.md`](./isolation.md).
+
 - Eventos: particípio mercado (`*_created` / `*_failed` / `*_completed`)
 - Prefixo `anam_*` em eventos; props snake_case (podem omitir `anam_`)
 - Entidade atendida = **`customer`** (neutro); mapa atual = handbook/paciente
 - Conta = singular **ativa** `anam_account_id` (sem `account_0_*`)
 - Email/senha = **user**-scoped
 - Sem PII clínica em props; telemetria fail-open
-- Intercom CDAs precisam existir no workspace (manual)
+- Intercom CDAs precisam existir no workspace (manual) — ver [`identity.md`](./identity.md)
 - GA4 dual names nativos (`login`, `purchase`) OK
+- Só checklist `live` → Mixpanel/GA
 
 ---
 

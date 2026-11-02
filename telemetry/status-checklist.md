@@ -1,12 +1,11 @@
 # Checklist de eventos por domínio
 
-**SoT:** este arquivo em `Ana-M-APP/anam-telemetry-docs`. Edite **Edit** + **Comment**.
+**SoT:** este arquivo em `Ana-M-APP/anam-telemetry-docs`. Edite **Edit** + **Comment**.  
+Índice: [`README.md`](./README.md).
 
 Status `live` = **liberado por Christian** para Mixpanel/GA (develop pós [#730](https://github.com/Ana-M-APP/anam-monorepo/pull/730)/[#735](https://github.com/Ana-M-APP/anam-monorepo/pull/735)/[#737](https://github.com/Ana-M-APP/anam-monorepo/pull/737); catálogo `0.4.1` em [#742](https://github.com/Ana-M-APP/anam-monorepo/pull/742)). Status `in review` = **suspenso** de Mixpanel/GA (`destinations: none`) até liberação explícita — HOLD / matriz pendente / pageviews / stubs.
 
-Só eventos (attrs de identidade: worksheets no Project). Fontes: rename + customer/sessions worksheets, [roadmap](./roadmap.md), inventário/catálogo.
-
-Ver também: [`events.yaml`](./events.yaml) (machine SoT), [`events.md`](./events.md) (espelho humano).
+Só **eventos** neste arquivo. Identidade / People / Intercom / Sentry → [`identity.md`](./identity.md). Naming → [`naming.md`](./naming.md). Destinos → [`destinations.md`](./destinations.md). Roadmap → [`roadmap.md`](./roadmap.md). Machine SoT → [`events.yaml`](./events.yaml) · espelho [`events.md`](./events.md).
 
 ---
 
