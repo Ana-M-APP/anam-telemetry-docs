@@ -1,7 +1,7 @@
 # Telemetry isolation from essential Ana M ops
 
-**Status:** shared contract (SoT for agents and implementers)
-**Host:** `Ana-M-APP/anam-telemetry-docs` → [`telemetry/`](./) · índice [`README.md`](./README.md)
+**Status:** shared contract (SoT for agents and implementers)  
+**Host:** `Ana-M-APP/anam-telemetry-docs` → [`telemetry/`](./) · índice [`README.md`](./README.md)  
 **Related:** monorepo root `AGENTS.md` hard rule (optional integrations vs app/billing); catalog SoT [`events.yaml`](./events.yaml); destinations [`destinations.md`](./destinations.md); package `@anam/telemetry`
 
 This contract specializes the monorepo optional-integration isolation rule for **product analytics and telemetry** (Mixpanel, GA4 client/MP, Intercom product attrs/sync, Sentry feedback, and any enrichment that exists only to emit analytics). It does **not** replace Stripe, Auth, Firestore financial/audit truth, or entitlement checks.

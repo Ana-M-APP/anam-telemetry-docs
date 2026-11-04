@@ -1,6 +1,6 @@
 # Contributing — como adicionar um evento
 
-**Audiência:** engenharia + Christian
+**Audiência:** engenharia + Christian  
 **Fluxo:** docs SoT → package tipado → instrumentação no monorepo
 
 ---

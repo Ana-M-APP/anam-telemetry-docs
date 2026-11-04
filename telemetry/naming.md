@@ -1,6 +1,6 @@
 # Naming — telemetria Ana M
 
-**Status:** locked (prefs + ondas #730 / #735 / #737)
+**Status:** locked (prefs + ondas #730 / #735 / #737)  
 **SoT de identifiers:** inglês `snake_case` apenas. Copy de UI pode ser PT/ES.
 
 Ver também: [`events.yaml`](./events.yaml) · [`.cursor/rules/telemetry-english-naming.mdc`](../.cursor/rules/telemetry-english-naming.mdc) · [`identity.md`](./identity.md)
