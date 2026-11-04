@@ -1,7 +1,7 @@
 # Identity attributes
 
-**Status:** locked (ondas #709 / #724 / #725 / #735 / #693 + rename worksheet)  
-**Machine allowlist:** bloco `identity:` em [`events.yaml`](./events.yaml)  
+**Status:** locked (ondas #709 / #724 / #725 / #735 / #693 + rename worksheet)
+**Machine allowlist:** bloco `identity:` em [`events.yaml`](./events.yaml)
 **Espelho props:** [`events.md`](./events.md) § Identity
 
 Estes são **atributos de identidade / perfil** — não eventos de produto. Intercom e Sentry **não** entram em `destinations` do catálogo de eventos.
@@ -44,6 +44,8 @@ Conta ativa (singular)  →  Mixpanel Group key anam_account_id
 | Signup / created at | People `$created` | user_property `anam_signup` | `created_at` (epoch s) | — | Mixpanel reserved ↔ Ana custom no GA |
 | `anam_user_id` | People | user_property | JWT claim | — | Mesmo UID (redundância explícita p/ workflows) |
 | `anam_account_id` | Group + People | user_property | JWT claim | tag `anam_account_id` | Conta **selecionada**; tag Sentry ≠ `user.id` |
+| `anam_signup_channel` | People | user_property | JWT claim | — | Original server-assigned `website` or `app`; absent for unknown legacy users |
+| `anam_member_session_currency` | People | user_property | JWT claim | — | Active membership BRL, EUR, GBP or USD |
 | `anam_signup_origin` | People | user_property | JWT claim | — | `Users.origin` |
 | `anam_last_login_at` | People | user_property | JWT claim | — | ISO8601 (MP/GA) / epoch no Intercom path; ≠ `$last_seen` |
 | `anam_member_profession` | People | user_property | JWT claim | — | Membership da conta ativa |

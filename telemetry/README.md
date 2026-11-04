@@ -11,7 +11,8 @@ Teammates abrem este repo (`Ana-M-APP/anam-telemetry-docs`) — **não** o Proje
 
 | Doc | Papel |
 | --- | --- |
-| [`events.yaml`](./events.yaml) | **Machine SoT** — catálogo `0.4.1`: eventos, destinos, aliases, `fe_suppressed`, allowlist de identity |
+| [`events.yaml`](./events.yaml) | **Machine SoT** — catálogo `0.5.0`: eventos, destinos, aliases, `fe_suppressed`, allowlist de identity |
+| [`signup.md`](./signup.md) | Signup channel, currency and deduplication contract |
 | [`events.md`](./events.md) | Espelho humano do catálogo (review); codegen **não** lê MD |
 | [`status-checklist.md`](./status-checklist.md) | Checklist operacional por domínio — Edit / Comment / Status (`live` \| `in review`) |
 | [`roadmap.md`](./roadmap.md) | Roadmap vivo: ondas feitas, backlog, regras locked, backfill |
