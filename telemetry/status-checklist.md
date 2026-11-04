@@ -1,6 +1,6 @@
 # Checklist de eventos por domínio
 
-**SoT:** este arquivo em `Ana-M-APP/anam-telemetry-docs`. Edite **Edit** + **Comment**.  
+**SoT:** este arquivo em `Ana-M-APP/anam-telemetry-docs`. Edite **Edit** + **Comment**.
 Índice: [`README.md`](./README.md).
 
 Status `live` = **liberado por Christian** para Mixpanel/GA (develop pós [#730](https://github.com/Ana-M-APP/anam-monorepo/pull/730)/[#735](https://github.com/Ana-M-APP/anam-monorepo/pull/735)/[#737](https://github.com/Ana-M-APP/anam-monorepo/pull/737); catálogo `0.4.1` em [#742](https://github.com/Ana-M-APP/anam-monorepo/pull/742)). Status `in review` = **suspenso** de Mixpanel/GA (`destinations: none`) até liberação explícita — HOLD / matriz pendente / pageviews / stubs.
@@ -35,6 +35,9 @@ Só **eventos** neste arquivo. Identidade / People / Intercom / Sentry → [`ide
 | `anam_billing_invoice_paid` | `anam_billing_invoice_paid` |  | live |
 | `anam_billing_invoice_payment_failed` | `anam_billing_invoice_payment_failed` |  | live |
 | `anam_subscription_trial_started` | `anam_subscription_trial_started` |  | live |
+| `anam_subscription_trial_ended` | `anam_subscription_trial_ended` | Reconciled from reviewed develop 0.4.4 | live |
+| `anam_subscription_paid_started` | `anam_subscription_paid_started` | Reconciled from reviewed develop 0.4.4 | live |
+| `anam_subscription_paid_ended` | `anam_subscription_paid_ended` | Reconciled from reviewed develop 0.4.4 | live |
 
 ---
 
@@ -126,3 +129,7 @@ HOLD wave-1 (ainda emitidos com nome inventário antigo), pageviews, stubs de ca
 | `subscription_reactivated` | `subscription_reactivated` |  | in review |
 | `subscription_plan_changed` | `subscription_plan_changed` |  | in review |
 | `purchase` | `purchase` |  | in review |
+
+## Signup attribution approval — 2026-11-03
+
+Christian approved the existing signup/account/failure events with `signup_channel`, `session_currency`, bounded failure `stage`, and the `anam_signup_channel` / `anam_member_session_currency` identity attributes. Destinations remain those of the existing events. Start/step events remain in review. Catalog 0.5.0 reconciles the monorepo's reviewed 0.4.4 base before this additive extension.

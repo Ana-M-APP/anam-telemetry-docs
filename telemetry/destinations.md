@@ -1,7 +1,7 @@
 # Destinos — Mixpanel / GA4 / Intercom / Sentry
 
-**Status:** locked (ondas até #742 + prefs)  
-**Catálogo:** [`events.yaml`](./events.yaml) campo `destinations`  
+**Status:** locked (ondas até #742 + prefs)
+**Catálogo:** [`events.yaml`](./events.yaml) campo `destinations`
 **Liberação:** só checklist [`status-checklist.md`](./status-checklist.md) **`live`**
 
 ---

@@ -1,6 +1,6 @@
 # Roadmap telemetria Ana M
 
-Atualizado: 2026-11-02 (America/Sao_Paulo).  
+Atualizado: 2026-11-02 (America/Sao_Paulo).
 **SoT:** este arquivo em `Ana-M-APP/anam-telemetry-docs`. Fonte de decisões: worksheets + prefs do Project (histórico); dia a dia = este repo.
 
 Índice: [`README.md`](./README.md). Status por evento: [`status-checklist.md`](./status-checklist.md). Catálogo: [`events.yaml`](./events.yaml). Naming / identity / destinos: [`naming.md`](./naming.md) · [`identity.md`](./identity.md) · [`destinations.md`](./destinations.md).
