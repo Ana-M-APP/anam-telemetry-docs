@@ -10,7 +10,7 @@ Ana M **telemetry** documentation — public source of truth for the event catal
 
 | Path | Role |
 | --- | --- |
-| [`telemetry/events.yaml`](./telemetry/events.yaml) | Machine SoT (catalog `0.5.0`) |
+| [`telemetry/events.yaml`](./telemetry/events.yaml) | Machine SoT (catalog `0.6.1`) |
 | [`telemetry/events.md`](./telemetry/events.md) | Human-readable mirror |
 | [`telemetry/status-checklist.md`](./telemetry/status-checklist.md) | Live vs in review (Mixpanel/GA liberation) |
 | [`telemetry/roadmap.md`](./telemetry/roadmap.md) | Waves / backlog / backfill |

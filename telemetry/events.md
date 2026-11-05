@@ -1,6 +1,6 @@
 # Event catalog (human mirror)
 
-**Catalog version:** `0.5.0`
+**Catalog version:** `0.6.1`
 **Machine SoT:** [`events.yaml`](./events.yaml) — typed codegen reads YAML only.
 **Repo:** `Ana-M-APP/anam-telemetry-docs` (authoritative). Consumer package: `@anam/telemetry`.
 
@@ -42,7 +42,7 @@ adapters strip every host prop not on that list before track. Adapter envelope
 
 | Event | Destinations | Props (snake_case; may omit `anam_`) |
 | --- | --- | --- |
-| `anam_account_created` | both (BE SoT) | `source`, `account_id`, `profession?`, `field_of_work?`, `sessions_per_month?`, `session_value?`, `session_currency?`, `signup_channel?` |
+| `anam_account_created` | both (BE SoT) | `source`, `account_id`, `profession?`, `field_of_work?`, `sessions_per_month?`, `session_value?`, `session_currency?`, `signup_channel?`, `intended_plan_key?`, `intended_billing_cycle?` |
 | `anam_account_create_failed` | Mixpanel | `message`, `error_code` |
 | `anam_user_email_change_requested` | Mixpanel | (none) |
 | `anam_user_email_changed` | Mixpanel | (none) — NEW on confirm |
@@ -174,3 +174,15 @@ tracks with a real client IP — never Stripe webhooks.
 Identity adds `anam_signup_channel` (original user acquisition channel) and `anam_member_session_currency` (active membership currency) alongside existing origin/profession/field/volume/value attributes. Intercom receives only signed identity attributes, never product event fan-out.
 
 Success metrics count unique Ana M users by channel. Account creation and user signup are separate measures. Website form failure collection respects statistics consent, uses manual events, disables replay/autocapture and excludes field contents, passwords and tokens.
+
+## Website signup funnel — catalog 0.6.1
+
+Approved by Christian on 2026-11-04. All three events are frontend-only and released for Mixpanel, subject to analytics consent. Properties are strictly limited to `step`, `step_index`, `locale`, `flow_version` and `signup_channel`. No form contents, contact details, consent choices or clinical profile fields are included.
+
+| Event | Fact |
+| --- | --- |
+| `anam_signup_step_viewed` | A signup step became visible, `intended_plan_key?`, `intended_billing_cycle?` |
+| `anam_signup_step_completed` | Validation succeeded and the visitor advanced, `intended_plan_key?`, `intended_billing_cycle?` |
+| `anam_signup_submitted` | The visitor explicitly submitted the account request, `intended_plan_key?`, `intended_billing_cycle?` |
+
+Committed account success remains server-owned. Abandonment is inferred from incomplete sequences, never asserted by page unload. See [signup](signup.md).
