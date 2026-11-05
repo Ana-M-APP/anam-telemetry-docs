@@ -25,6 +25,9 @@ Só **eventos** neste arquivo. Identidade / People / Intercom / Sentry → [`ide
 | `anam_password_reset_completed` | `anam_password_reset_completed` |  | live |
 | `anam_signed_up` | `anam_signed_up` |  | live |
 | `anam_signup_failed` | `anam_signup_failed` |  | live |
+| `anam_signup_step_viewed` | `anam_signup_step_viewed` | Website funnel approved 2026-11-04 | live |
+| `anam_signup_step_completed` | `anam_signup_step_completed` | Website funnel approved 2026-11-04 | live |
+| `anam_signup_submitted` | `anam_signup_submitted` | Website funnel approved 2026-11-04 | live |
 
 ---
 
@@ -132,4 +135,8 @@ HOLD wave-1 (ainda emitidos com nome inventário antigo), pageviews, stubs de ca
 
 ## Signup attribution approval — 2026-11-03
 
-Christian approved the existing signup/account/failure events with `signup_channel`, `session_currency`, bounded failure `stage`, and the `anam_signup_channel` / `anam_member_session_currency` identity attributes. Destinations remain those of the existing events. Start/step events remain in review. Catalog 0.5.0 reconciles the monorepo's reviewed 0.4.4 base before this additive extension.
+Christian approved the existing signup/account/failure events with `signup_channel`, `session_currency`, bounded failure `stage`, and the `anam_signup_channel` / `anam_member_session_currency` identity attributes. Destinations remain those of the existing events. The website step events were subsequently approved in catalog 0.6.1. Catalog 0.5.0 reconciles the monorepo's reviewed 0.4.4 base before this additive extension.
+
+## Signup intention contract — 0.6.1
+
+Existing signup events only: `intended_plan_key=anam-complete` and numeric `intended_billing_cycle=1|6|12` travel together. Generic entry omits both. No new event is approved. `intended_billing_period` is retired from emitted props; the API accepts it only as an input migration alias. Member ownership and signed Intercom mapping are specified in [signup.md](signup.md). Contract approval does not claim live provider ingestion.

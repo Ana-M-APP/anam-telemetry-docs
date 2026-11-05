@@ -4,7 +4,7 @@
 # Consumers: @anam/telemetry (monorepo packages/telemetry) generates typed TS from this YAML.
 
 catalog:
-  version: "0.5.0"
+  version: "0.6.1"
   schema_version: 1
   notes: |
     SoT for Ana M product analytics. Consumed by @anam/telemetry (codegen). ONLY Christian-liberated (checklist `live`) events may fan out to Mixpanel or GA4. All other catalog rows use destinations: none (suspended) until explicitly liberated — including HOLD deletion/assistants/prefs, pageviews, and Stripe subscription lifecycle stubs (`stripe_subscription_*`). Wave-1 rename: product events use anam_* English snake_case with market participle/state. Event props may omit anam_ prefix (account_id, amount, reason, …) because the event name already namespaces. Identity People / Group / user_properties allowlist lives under `identity:` — shared active-account + membership + subscription commercial attrs (`anam_account_id`, `anam_signup_origin`, `anam_member_*`, `anam_billing_*`, `anam_plan_*`, `anam_subscription_status`) across Mixpanel and GA4. Intercom Company may mirror commercial attrs (optional REST); Intercom People does not carry plan/status. Catalog 0.4.4: subscription funnel product events (`anam_subscription_trial_*`, `anam_subscription_paid_*`) + subscription identity attrs; generic `stripe_subscription_*` stay HOLD. Catalog 0.4.3: live Mixpanel/GA events declare per-event `props` allowlists; adapters strip anything else before track (envelope + Group key remain adapter-owned). Catalog 0.4.2: Mixpanel HTTP attaches Group key anam_account_id from the operation account; Intercom JWT nests company.company_id (= Account ID) separately from People attr anam_account_id. Stripe Marketplace only configures Mixpanel projects — product billing events are emitted by anam-telemetry, NOT the marketplace app. Dedupe by Stripe event id (+ funnel suffix). Empty/undefined values must be omitted at emit.
@@ -73,6 +73,42 @@ events:
   signup_started:
     destinations: none
     where: fe
+  anam_signup_step_viewed:
+    destinations: mixpanel
+    where: fe
+    props:
+      - step
+      - step_index
+      - locale
+      - flow_version
+      - signup_channel
+      - intended_plan_key
+      - intended_billing_cycle
+
+  anam_signup_step_completed:
+    destinations: mixpanel
+    where: fe
+    props:
+      - step
+      - step_index
+      - locale
+      - flow_version
+      - signup_channel
+      - intended_plan_key
+      - intended_billing_cycle
+
+  anam_signup_submitted:
+    destinations: mixpanel
+    where: fe
+    props:
+      - step
+      - step_index
+      - locale
+      - flow_version
+      - signup_channel
+      - intended_plan_key
+      - intended_billing_cycle
+
   anam_signup_failed:
     destinations: mixpanel
     where: fe
@@ -106,6 +142,8 @@ events:
       - session_value
       - signup_channel
       - session_currency
+      - intended_plan_key
+      - intended_billing_cycle
 
   anam_login_completed:
     destinations: both
