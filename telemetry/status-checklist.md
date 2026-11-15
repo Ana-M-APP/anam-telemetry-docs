@@ -114,6 +114,17 @@ HOLD wave-1 (ainda emitidos com nome inventário antigo), pageviews, stubs de ca
 | `password_reset_email_sent_error` | `password_reset_email_sent_error` |  | in review |
 | `password_reset_error` | `password_reset_error` |  | in review |
 
+### Inbox / calendar realtime reliability (ops_only)
+
+Catalogued for Sentry/ops — **not** Mixpanel/GA product lexicon. Emit only on terminal or capacity failures (never successful grant renewals or bookings GETs).
+
+| Event (Current) | Edit | Comment | Status |
+| --- | --- | --- | --- |
+| `anam_inbox_connection_unavailable` | `anam_inbox_connection_unavailable` | Catalog 0.6.2; destinations `ops_only` | ops |
+| `anam_inbox_stream_rate_limited` | `anam_inbox_stream_rate_limited` | Catalog 0.6.2; destinations `ops_only` | ops |
+| `anam_calendar_stream_grant_failed` | `anam_calendar_stream_grant_failed` | Catalog 0.6.2; destinations `ops_only` | ops |
+| `anam_calendar_bookings_refresh_failed` | `anam_calendar_bookings_refresh_failed` | Catalog 0.6.2; destinations `ops_only` | ops |
+
 ### Pageviews + stubs catálogo / matriz
 
 | Event (Current) | Edit | Comment | Status |

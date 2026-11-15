@@ -28,8 +28,10 @@ Intercom e Sentry **não** são valores de `destinations` no YAML de product eve
 | `mixpanel` | sim | não | Product usage |
 | `ga4` | não | sim | Raro; acquisition-only |
 | `both` | sim | sim | Precisa `ga4_name` |
-| `ops_only` | não | não | Ops / logs — não Lexicon de produto |
+| `ops_only` | não | não | Ops / logs — não Lexicon de produto (ex. inbox/calendar stream reliability → Sentry) |
 | `none` | não | não | **Suspenso** até Christian marcar `live` |
+
+Catalog **0.6.2** adds sparse FE `ops_only` events for inbox connection unavailable / rate limit and calendar stream grant / bookings refresh failures. Never emit on successful grant renewals or coalesced bookings GETs.
 
 ### Regra de allowlist (hard)
 
