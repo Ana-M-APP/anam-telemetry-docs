@@ -175,6 +175,19 @@ Identity adds `anam_signup_channel` (original user acquisition channel) and `ana
 
 Success metrics count unique Ana M users by channel. Account creation and user signup are separate measures. Website form failure collection respects statistics consent, uses manual events, disables replay/autocapture and excludes field contents, passwords and tokens.
 
+## Inbox / calendar realtime reliability — catalog 0.6.2
+
+`destinations: ops_only`. These are **not** product Lexicon events. Adapters must not fan out to Mixpanel or GA4. Emit from the web app to Sentry (or equivalent ops) only when:
+
+| Event | When |
+| --- | --- |
+| `anam_inbox_connection_unavailable` | Inbox SSE gives up after bounded reconnect failures (`failure_count`, optional `error_code`) |
+| `anam_inbox_stream_rate_limited` | Inbox grant/stream returns 429 (`retry_after_seconds`) |
+| `anam_calendar_stream_grant_failed` | Calendar change-stream grant fails with capacity / forbidden / unavailable (`error_code`) — not planned TTL renewals |
+| `anam_calendar_bookings_refresh_failed` | Bookings window refresh fails (`error_code`) — not every successful invalidation GET |
+
+Do not emit on successful grant mint, intentional abort/reconnect, or coalesced bookings refreshes.
+
 ## Website signup funnel — catalog 0.6.1
 
 Approved by Christian on 2026-11-04. All three events are frontend-only and released for Mixpanel, subject to analytics consent. Properties are strictly limited to `step`, `step_index`, `locale`, `flow_version` and `signup_channel`. No form contents, contact details, consent choices or clinical profile fields are included.
