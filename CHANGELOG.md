@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.4 — Ana M 2.0 agenda rollout
+
+- Add Mixpanel usage and server-confirmed adoption events with separate reporting for preview, legacy migration, and native Account creation.
+
 ## 0.6.1 — prepared 2026-11-05
 
 - Add the approved, consent-gated website signup step funnel and strict property allowlists.

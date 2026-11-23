@@ -1,6 +1,6 @@
 # Event catalog (human mirror)
 
-**Catalog version:** `0.6.1`
+**Catalog version:** `0.6.4`
 **Machine SoT:** [`events.yaml`](./events.yaml) — typed codegen reads YAML only.
 **Repo:** `Ana-M-APP/anam-telemetry-docs` (authoritative). Consumer package: `@anam/telemetry`.
 
@@ -11,6 +11,15 @@ adapters strip every host prop not on that list before track. Adapter envelope
 (`environment`, `source`, `event_version`) and Mixpanel Group key
 `anam_account_id` (list) are attached after the allowlist — never camel
 `accountId` on product events.
+
+## Ana M 2.0 Calendar adoption (0.6.4)
+
+| Event | Owner / destination | Allowed properties |
+| --- | --- | --- |
+| `anam_calendar_opened` | Browser / Mixpanel | `account_id`, `calendar_version` (legacy, v2), `account_cohort` (legacy, migrating, migrated, adopted_empty, new_native), optional `service_region` (BR, UK) |
+| `anam_calendar_adoption_changed` | Server / Mixpanel | `account_id`, `adoption_stage` (migration_started, migration_completed, empty_opt_in, new_native) |
+
+A preview is a successfully loaded v2 calendar on an existing Account whose cohort is still legacy. An existing Account that explicitly adopted Calendar with no sessions to import is `adopted_empty`. An Account created with the native Calendar is `new_native`, including an additional Account created by an existing user. Count distinct users for reach and distinct Accounts for adoption.
 
 ## Customer + sessions (`0.4.0`)
 
