@@ -383,12 +383,12 @@ events:
     props:
       - account_id
       - channel
-  anam_agenda_opened:
+  anam_calendar_opened:
     destinations: mixpanel
     where: fe
     props:
       - account_id
-      - agenda_surface
+      - calendar_version
       - account_cohort
       - service_region
   anam_calendar_adoption_changed:
