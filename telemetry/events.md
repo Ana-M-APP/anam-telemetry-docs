@@ -1,6 +1,6 @@
 # Event catalog (human mirror)
 
-**Catalog version:** `0.6.1`
+**Catalog version:** `0.6.4`
 **Machine SoT:** [`events.yaml`](./events.yaml) — typed codegen reads YAML only.
 **Repo:** `Ana-M-APP/anam-telemetry-docs` (authoritative). Consumer package: `@anam/telemetry`.
 
@@ -11,6 +11,13 @@ adapters strip every host prop not on that list before track. Adapter envelope
 (`environment`, `source`, `event_version`) and Mixpanel Group key
 `anam_account_id` (list) are attached after the allowlist — never camel
 `accountId` on product events.
+
+## Ana M 2.0 agenda adoption (0.6.4)
+
+| Event                            | Owner / destination | Allowed properties                                                                                                                                       |
+| -------------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `anam_agenda_opened`             | Browser / Mixpanel  | `account_id`, `agenda_surface` (legacy, preview, native), `account_cohort` (legacy, migrating, migrated, new_native), optional `service_region` (BR, UK) |
+| `anam_calendar_adoption_changed` | Server / Mixpanel   | `account_id`, `adoption_stage` (migration_started, migration_completed, empty_opt_in, new_native)                                                        |
 
 ## Customer + sessions (`0.4.0`)
 

@@ -77,6 +77,13 @@ Só **eventos** neste arquivo. Identidade / People / Intercom / Sentry → [`ide
 
 ---
 
+## Ana M 2.0 agenda rollout
+
+| Event | Destination | Decision | Status |
+| --- | --- | --- | --- |
+| `anam_agenda_opened` | Mixpanel | Count authenticated visitors and distinct active Accounts by the rendered agenda and Account origin. A preview is tracked separately. | live |
+| `anam_calendar_adoption_changed` | Mixpanel | Count distinct Accounts by persisted adoption milestone. An Account created with the native agenda has its own milestone. | live |
+
 ## 5. Backlog / not live
 
 HOLD wave-1 (ainda emitidos com nome inventário antigo), pageviews, stubs de catálogo / matriz pendente.
