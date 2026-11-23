@@ -64,19 +64,21 @@ Contrato completo: [`isolation.md`](./isolation.md).
 
 ---
 
-## Disponibilizar as dimensões nos relatórios
+## Account dimensions in reports
 
-O SDK entrega as propriedades nos eventos e perfis. O SDK e este catálogo ainda não automatizam o cadastro das definições nos fornecedores.
+The catalog defines the properties that the SDK sends. Each vendor also has its own reporting configuration.
 
-| Ferramenta | Cadastro por ambiente | Campos |
+| Destination | Scope | Fields |
 | --- | --- | --- |
-| GA4, escopo de evento | Em cada propriedade GA4, criar as dimensões para analisar a Account de cada operação | `account_country`, `routing_region`, `calendar_version`, `account_cohort`, `adoption_stage` |
-| GA4, escopo de usuário | Em cada propriedade, cadastrar os atributos para segmentar perfis | `anam_account_country`, `anam_routing_region`, `anam_2_0_user` |
-| Intercom, Company | Em cada workspace, registrar os atributos da Account no modelo `company` | `anam_account_country` e `anam_routing_region` do tipo `string` |
-| Intercom, People | Em cada workspace, registrar a qualificação da pessoa no modelo `contact` | `anam_2_0_user` do tipo `boolean` |
-| Mixpanel | O projeto recebe as propriedades junto com os eventos. O relatório de Groups usa a chave de grupo existente `anam_account_id` | País e região no evento descrevem a Account daquela operação. Os perfis de People espelham a Account ativa. |
+| GA4 | Register event-scoped custom dimensions in each Analytics property for the Account associated with the event. | `account_country`, `routing_region`, `calendar_version`, `account_cohort`, `adoption_stage` |
+| GA4 | Register user-scoped custom dimensions in each property to segment users. | `anam_account_country`, `anam_routing_region`, `anam_2_0_user` |
+| Intercom | Define the Account attributes on the Company model in each workspace. | `anam_account_country` and `anam_routing_region` as strings |
+| Intercom | Define the adoption marker on the Contact model in each workspace. | `anam_2_0_user` as a boolean |
+| Mixpanel | The project ingests event properties with the event. Group reports use the existing `anam_account_id` group key. | Event properties describe the Account used for the action. People profile properties reflect the active Account. |
 
-Uma rotina de sincronização pode listar as definições de cada propriedade GA4 e comparar por `parameterName` e `scope`. No Intercom, pode comparar por workspace, nome, modelo e tipo. A rotina cria as definições ausentes e sinaliza incompatibilidades já existentes para revisão. Os mesmos campos aceitam novos valores de países ou regiões. Só um novo campo, propriedade GA4 ou workspace exige atualizar esse cadastro. [Google Analytics Admin API](https://developers.google.com/analytics/devguides/config/admin/v1/rest/v1beta/properties.customDimensions) · [Intercom Data Attributes API](https://developers.intercom.com/docs/references/2.12/rest-api/api.intercom.io/data-attributes/createdataattribute)
+The browser host passes the environment’s public GA4 web stream ID as `measurementId` to the SDK. The server uses the same stream for Measurement Protocol. An eligible browser event carries that configured destination in `send_to`, including when Firebase omits the stream ID from its web configuration. Event payloads cannot override the destination. The existing Google tag and consent settings govern collection. Verify the event name, destination and Account dimensions in an actual collection request.
+
+A future sync job can compare `parameterName` and `scope` in each GA4 property, and attribute name, model and type in each Intercom workspace. Existing fields accept new country and routing values. The current repositories do not run this job. [GA4 Admin API](https://developers.google.com/analytics/devguides/config/admin/v1/rest/v1beta/properties.customDimensions) · [Intercom Data Attributes API](https://developers.intercom.com/docs/references/2.12/rest-api/api.intercom.io/data-attributes/createdataattribute)
 
 ## Quem é SoT de reporting
 
