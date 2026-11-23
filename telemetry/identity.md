@@ -98,7 +98,7 @@ Só identidade — **sem** `trackEvent` de produto.
 - Claims assinados em `createIntercomSession` → `boot` / `update`.
 - Claims opcionais omitidos se ausentes/inválidos.
 - Layout boot (`api_base`, padding, `z_index`, …) fora desta tabela.
-- **CDAs `anam_*` devem existir no workspace Intercom People** — criação **manual** no Intercom Admin (ops, não código). Sem CDA, o attr não aparece no People mesmo que o JWT envie.
+- Cadastre cada atributo no modelo correspondente em cada workspace, via painel ou API. [Configuração por destino](./destinations.md#disponibilizar-as-dimensões-nos-relatórios)
 - No Intercom, `anam_account_country` e `anam_routing_region` são atributos da Company com `company_id` igual ao ID da Account. `anam_2_0_user` é um atributo booleano de People. Os atributos assinados representam separadamente pessoa e Account no Messenger.
 - Sync de usage Mixpanel → Intercom / aquisição GA4·BQ → Intercom: **adiado** (não no path do Messenger request).
 
