@@ -1,6 +1,6 @@
 # Event catalog (human mirror)
 
-**Catalog version:** `0.6.1`
+**Catalog version:** `0.7.0`
 **Machine SoT:** [`events.yaml`](./events.yaml) — typed codegen reads YAML only.
 **Repo:** `Ana-M-APP/anam-telemetry-docs` (authoritative). Consumer package: `@anam/telemetry`.
 
@@ -11,6 +11,19 @@ adapters strip every host prop not on that list before track. Adapter envelope
 (`environment`, `source`, `event_version`) and Mixpanel Group key
 `anam_account_id` (list) are attached after the allowlist — never camel
 `accountId` on product events.
+
+## Ana M 2.0 Calendar adoption (0.6.5)
+
+| Event                            | Owner / destination        | Allowed properties                                                                                                                                            |
+| -------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `anam_calendar_opened`           | Browser / Mixpanel and GA4 | `account_id`, `calendar_version` (legacy, v2), `account_cohort` (legacy, migrating, migrated, adopted_empty, new_native), `account_country`, `routing_region` |
+| `anam_calendar_adoption_changed` | Server / Mixpanel and GA4  | `account_id`, `adoption_stage` (migration_started, migration_completed, empty_opt_in, new_native), `account_country`, `routing_region`                        |
+
+A preview is a successfully loaded v2 calendar on an existing Account whose cohort is still legacy. An existing Account that explicitly adopted Calendar with no sessions to import is `adopted_empty`. An Account created with the native Calendar is `new_native`, including an additional Account created by an existing user. Count distinct users for reach and distinct Accounts for adoption.
+
+Account-scoped events accept the country recorded on the Account (`account_country`) and the hosting region selected by the service router (`routing_region`). Either value can be omitted when unknown. For example, a Portuguese Account could route to `eu`. The older calendar-opened property `service_region` is accepted for compatibility. It represents the Account country. IP-based geography describes the visitor.
+
+Mixpanel Groups store `anam_account_country` and `anam_routing_region`. Mixpanel People and GA4 user properties mirror the active Account. The person-level boolean `anam_2_0_user` is set to true only after a confirmed production service connection. Creating an Account, previewing Calendar, adopting Calendar, or using staging is insufficient to set the marker.
 
 ## Customer + sessions (`0.4.0`)
 
@@ -127,7 +140,6 @@ tracks with a real client IP — never Stripe webhooks.
 
 | Prop | Kind | Notes |
 | --- | --- | --- |
-| `name`, `email`, `phone` | Dual of Mixpanel `$name` / `$email` / `$phone` | No GA reserved People equivalents |
 | `anam_user_id` | Ana custom (+ dual of `user_id`) | Same Ana M UID as gtag/MP `user_id` |
 | `anam_account_id` | Ana custom | Selected account (Group key also `anam_account_id`) |
 | `anam_signup` | Ana custom | Dual of Mixpanel `$created` |
@@ -144,9 +156,9 @@ tracks with a real client IP — never Stripe webhooks.
 | Purpose | Mixpanel | GA4 |
 | --- | --- | --- |
 | Person id | `distinct_id` / `$user_id` + People `anam_user_id` | `user_id` (+ user_property `anam_user_id`) |
-| Display name | People `$name` | user_property `name` |
-| Email | People `$email` | user_property `email` |
-| Phone | People `$phone` | user_property `phone` |
+| Display name | People `$name` | Excluded |
+| Email | People `$email` | Excluded |
+| Phone | People `$phone` | Excluded |
 | Signup / created at | People `$created` | user_property `anam_signup` |
 | Signup origin | People `anam_signup_origin` | user_property `anam_signup_origin` |
 | Last product login | People `anam_last_login_at` | user_property `anam_last_login_at` |
@@ -199,3 +211,17 @@ Approved by Christian on 2026-11-04. All three events are frontend-only and rele
 | `anam_signup_submitted` | The visitor explicitly submitted the account request, `intended_plan_key?`, `intended_billing_cycle?` |
 
 Committed account success remains server-owned. Abandonment is inferred from incomplete sequences, never asserted by page unload. See [signup](signup.md).
+
+## Calendar welcome and migration (catalog 0.7.0)
+
+Mixpanel and GA4, except `anam_calendar_setup_failed` (`ops_only`). `anam_calendar_adoption_changed` keeps the committed start and completion facts.
+
+| Event                                      | Where | Fact                                                                                             |
+| ------------------------------------------ | ----- | ------------------------------------------------------------------------------------------------ |
+| `anam_calendar_welcome_step_viewed`        | fe    | A welcome step was shown for the first time in this visit (`step`, `step_index`, `flow_version`) |
+| `anam_calendar_welcome_submitted`          | fe    | The person continued in the last step (`sessions_bucket`, `defaults_used`) — intent, not success |
+| `anam_calendar_setup_applied`              | fe    | Every chosen setting was confirmed by the service                                                |
+| `anam_calendar_setup_failed`               | fe    | Activation, one setting or the migration start was not confirmed (`stage`, `error_code`)         |
+| `anam_calendar_migration_window_completed` | be    | A work window (`next`, `future`, `history`) was fully verified (`duration_bucket`)               |
+| `anam_calendar_migration_status_opened`    | fe    | Migration status opened (`entry_point`, `migration_stage`)                                       |
+| `anam_calendar_migration_retry_clicked`    | fe    | Retry or continue requested (`migration_stage`) — intent                                         |

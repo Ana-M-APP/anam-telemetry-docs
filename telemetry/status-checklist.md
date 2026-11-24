@@ -77,6 +77,20 @@ Só **eventos** neste arquivo. Identidade / People / Intercom / Sentry → [`ide
 
 ---
 
+## Ana M 2.0 agenda rollout
+
+| Event | Destination | Decision | Status |
+| --- | --- | --- | --- |
+| `anam_calendar_opened` | Mixpanel + GA4 | Count authenticated visitors and distinct active Accounts by calendar version and Account cohort. A v2 view by a legacy Account is a preview. | live |
+| `anam_calendar_adoption_changed` | Mixpanel + GA4 | Count distinct Accounts by persisted adoption milestone. An Account created with the native agenda has its own milestone. | live |
+| `anam_calendar_welcome_step_viewed` | Mixpanel + GA4 | First view of each welcome step in a visit. Liberated 2026-11-24. | live |
+| `anam_calendar_welcome_submitted` | Mixpanel + GA4 | Intent to continue, not activation success. Liberated 2026-11-24. | live |
+| `anam_calendar_setup_applied` | Mixpanel + GA4 | Every chosen setting was confirmed. Liberated 2026-11-24. | live |
+| `anam_calendar_migration_window_completed` | Mixpanel + GA4 | Server only, once per Account, generation and window. Liberated 2026-11-24. | live |
+| `anam_calendar_migration_status_opened` | Mixpanel + GA4 | Status opened from the toast or the sidebar. Liberated 2026-11-24. | live |
+| `anam_calendar_migration_retry_clicked` | Mixpanel + GA4 | Intent to retry, not success. Liberated 2026-11-24. | live |
+| `anam_calendar_setup_failed` | ops_only | Catalog 0.7.0; never Mixpanel or GA4. | ops |
+
 ## 5. Backlog / not live
 
 HOLD wave-1 (ainda emitidos com nome inventário antigo), pageviews, stubs de catálogo / matriz pendente.
