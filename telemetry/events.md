@@ -1,6 +1,6 @@
 # Event catalog (human mirror)
 
-**Catalog version:** `0.6.5`
+**Catalog version:** `0.7.0`
 **Machine SoT:** [`events.yaml`](./events.yaml) — typed codegen reads YAML only.
 **Repo:** `Ana-M-APP/anam-telemetry-docs` (authoritative). Consumer package: `@anam/telemetry`.
 
@@ -211,3 +211,17 @@ Approved by Christian on 2026-11-04. All three events are frontend-only and rele
 | `anam_signup_submitted` | The visitor explicitly submitted the account request, `intended_plan_key?`, `intended_billing_cycle?` |
 
 Committed account success remains server-owned. Abandonment is inferred from incomplete sequences, never asserted by page unload. See [signup](signup.md).
+
+## Calendar welcome and migration (catalog 0.7.0)
+
+Mixpanel and GA4, except `anam_calendar_setup_failed` (`ops_only`). `anam_calendar_adoption_changed` keeps the committed start and completion facts.
+
+| Event                                      | Where | Fact                                                                                             |
+| ------------------------------------------ | ----- | ------------------------------------------------------------------------------------------------ |
+| `anam_calendar_welcome_step_viewed`        | fe    | A welcome step was shown for the first time in this visit (`step`, `step_index`, `flow_version`) |
+| `anam_calendar_welcome_submitted`          | fe    | The person continued in the last step (`sessions_bucket`, `defaults_used`) — intent, not success |
+| `anam_calendar_setup_applied`              | fe    | Every chosen setting was confirmed by the service                                                |
+| `anam_calendar_setup_failed`               | fe    | Activation, one setting or the migration start was not confirmed (`stage`, `error_code`)         |
+| `anam_calendar_migration_window_completed` | be    | A work window (`next`, `future`, `history`) was fully verified (`duration_bucket`)               |
+| `anam_calendar_migration_status_opened`    | fe    | Migration status opened (`entry_point`, `migration_stage`)                                       |
+| `anam_calendar_migration_retry_clicked`    | fe    | Retry or continue requested (`migration_stage`) — intent                                         |
