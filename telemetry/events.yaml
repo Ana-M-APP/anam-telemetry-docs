@@ -462,7 +462,6 @@ events:
     props:
       - account_id
       - hours_changed
-      - suggestion_used
       - confirmation_policy
       - channels
   anam_calendar_setup_failed:
