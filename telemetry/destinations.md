@@ -64,6 +64,22 @@ Contrato completo: [`isolation.md`](./isolation.md).
 
 ---
 
+## Account dimensions in reports
+
+The catalog defines the properties that the SDK sends. Each vendor also has its own reporting configuration.
+
+| Destination | Scope | Fields |
+| --- | --- | --- |
+| GA4 | Register event-scoped custom dimensions in each Analytics property for the Account associated with the event. | `account_country`, `routing_region`, `calendar_version`, `account_cohort`, `adoption_stage` |
+| GA4 | Register user-scoped custom dimensions in each property to segment users. | `anam_account_country`, `anam_routing_region`, `anam_2_0_user` |
+| Intercom | Define the Account attributes on the Company model in each workspace. | `anam_account_country` and `anam_routing_region` as strings |
+| Intercom | Define the adoption marker on the Contact model in each workspace. | `anam_2_0_user` as a boolean |
+| Mixpanel | The project ingests event properties with the event. Group reports use the existing `anam_account_id` group key. | Event properties describe the Account used for the action. People profile properties reflect the active Account. |
+
+The browser host passes the environment’s public GA4 web stream ID as `measurementId` to the SDK. The server uses the same stream for Measurement Protocol. An eligible browser event carries that configured destination in `send_to`, including when Firebase omits the stream ID from its web configuration. Event payloads cannot override the destination. The existing Google tag and consent settings govern collection. Verify the event name, destination and Account dimensions in an actual collection request.
+
+A future sync job can compare `parameterName` and `scope` in each GA4 property, and attribute name, model and type in each Intercom workspace. Existing fields accept new country and routing values. The current repositories do not run this job. [GA4 Admin API](https://developers.google.com/analytics/devguides/config/admin/v1/rest/v1beta/properties.customDimensions) · [Intercom Data Attributes API](https://developers.intercom.com/docs/references/2.12/rest-api/api.intercom.io/data-attributes/createdataattribute)
+
 ## Quem é SoT de reporting
 
 | KPI | SoT |

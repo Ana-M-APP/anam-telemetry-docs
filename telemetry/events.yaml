@@ -4,7 +4,7 @@
 # Consumers: @anam/telemetry (monorepo packages/telemetry) generates typed TS from this YAML.
 
 catalog:
-  version: "0.6.4"
+  version: "0.6.5"
   schema_version: 1
   notes: |
     SoT for Ana M product analytics. Consumed by @anam/telemetry (codegen). ONLY Christian-liberated (checklist `live`) events may fan out to Mixpanel or GA4. All other catalog rows use destinations: none (suspended) until explicitly liberated — including HOLD deletion/assistants/prefs, pageviews, and Stripe subscription lifecycle stubs (`stripe_subscription_*`). Wave-1 rename: product events use anam_* English snake_case with market participle/state. Event props may omit anam_ prefix (account_id, amount, reason, …) because the event name already namespaces. Identity People / Group / user_properties allowlist lives under `identity:` — shared active-account + membership + subscription commercial attrs (`anam_account_id`, `anam_signup_origin`, `anam_member_*`, `anam_billing_*`, `anam_plan_*`, `anam_subscription_status`) across Mixpanel and GA4. Intercom Company may mirror commercial attrs (optional REST); Intercom People does not carry plan/status. Catalog 0.4.4: subscription funnel product events (`anam_subscription_trial_*`, `anam_subscription_paid_*`) + subscription identity attrs; generic `stripe_subscription_*` stay HOLD. Catalog 0.4.3: live Mixpanel/GA events declare per-event `props` allowlists; adapters strip anything else before track (envelope + Group key remain adapter-owned). Catalog 0.4.2: Mixpanel HTTP attaches Group key anam_account_id from the operation account; Intercom JWT nests company.company_id (= Account ID) separately from People attr anam_account_id. Stripe Marketplace only configures Mixpanel projects — product billing events are emitted by anam-telemetry, NOT the marketplace app. Dedupe by Stripe event id (+ funnel suffix). Empty/undefined values must be omitted at emit.
@@ -16,6 +16,9 @@ identity:
     - $created
     - anam_user_id
     - anam_account_id
+    - anam_account_country
+    - anam_routing_region
+    - anam_2_0_user
     - anam_signup_origin
     - anam_signup_channel
     - anam_last_login_at
@@ -31,17 +34,19 @@ identity:
     - anam_plan_name
     - anam_subscription_status
   mixpanel_group:
+    - anam_account_country
+    - anam_routing_region
     - anam_billing_provider
     - anam_plan_key
     - anam_billing_price_id
     - anam_plan_name
     - anam_subscription_status
   ga4_user_properties:
-    - name
-    - email
-    - phone
     - anam_user_id
     - anam_account_id
+    - anam_account_country
+    - anam_routing_region
+    - anam_2_0_user
     - anam_signup
     - anam_signup_origin
     - anam_signup_channel
@@ -58,7 +63,7 @@ identity:
     - anam_plan_name
     - anam_subscription_status
   notes: |
-    Person identity = Ana M UID (Mixpanel distinct_id/$user_id, GA4 user_id). Active / operation account = singular anam_account_id (Mixpanel Group key + People + GA4 user_property). Subscription commercial state belongs to the **account** (Group Profile SoT); People/GA mirror the active account only. Server HTTP sets Group as anam_account_id:[id]; legacy event prop account_id is compatible when it agrees — conflicts set anam_account_group_conflict and skip Group (no silent pick). Intercom: People attr anam_account_id ≠ Companies company_id; JWT nests company.company_id = Account ID. Commercial plan/status CDAs live on Intercom Company when configured — not on Intercom People. Membership attrs (profession / field_of_work / sessions_per_month / role owner|assistant / session_value) and user-scoped signup_origin / last_login_at are shared with Intercom People — same anam_* names. Ana custom props MUST use anam_* — never bare invented names. Platform reserved ($name/$email/$phone/$created, GA user_id) keep vendor names; GA name/email/phone are the dual of Mixpanel $name/$email/$phone. GA signup dual of Mixpanel $created is anam_signup (ISO8601). Omit null/undefined/empty/"undefined" string values. Mixpanel browser geo IP is on (ip:true) for Country/Region/City enrichment; Session Replay + autocapture use privacy-safe defaults (mask all text/inputs; no element text / form values; no canvas/network). GA4 browser geo depends on GTM tag + consent on the same G- stream. GA4 MP / Mixpanel HTTP may set ip_override / ip only on user-facing API tracks with a trusted client IP — never Stripe webhooks. Event and custom prop identifiers MUST be English snake_case. Stripe invoice event props: amount (invoice major units), currency, account_id, stripe_customer_id, source — no plan on invoice events. Subscription funnel events carry account_id + reason where applicable; plan/status live on identity. Do NOT send language on Mixpanel/GA People. Group Profile commercial attrs are written via Mixpanel /groups (fail-open); counters/backfill remain a separate wave.
+    Person identity = Ana M UID (Mixpanel distinct_id/$user_id, GA4 user_id). Active / operation account = singular anam_account_id (Mixpanel Group key + People + GA4 user_property). Subscription commercial state belongs to the **account** (Group Profile SoT); People/GA mirror the active account only. Server HTTP sets Group as anam_account_id:[id]; legacy event prop account_id is compatible when it agrees — conflicts set anam_account_group_conflict and skip Group (no silent pick). Intercom: People attr anam_account_id ≠ Companies company_id; JWT nests company.company_id = Account ID. Commercial plan/status CDAs live on Intercom Company when configured — not on Intercom People. Membership attrs (profession / field_of_work / sessions_per_month / role owner|assistant / session_value) and user-scoped signup_origin / last_login_at are shared with Intercom People — same anam_* names. Ana custom props MUST use anam_* — never bare invented names. Platform reserved ($name/$email/$phone/$created, GA user_id) keep vendor names; Names, email addresses and phone numbers are restricted to Mixpanel People and excluded from GA4. Account country and routing region come from the operation Account and its service resolver. anam_2_0_user is a person marker supplied only after a confirmed production service connection. GA signup dual of Mixpanel $created is anam_signup (ISO8601). Omit null/undefined/empty/"undefined" string values. Mixpanel browser geo IP is on (ip:true) for Country/Region/City enrichment; Session Replay + autocapture use privacy-safe defaults (mask all text/inputs; no element text / form values; no canvas/network). GA4 browser geo depends on GTM tag + consent on the same G- stream. GA4 MP / Mixpanel HTTP may set ip_override / ip only on user-facing API tracks with a trusted client IP — never Stripe webhooks. Event and custom prop identifiers MUST be English snake_case. Stripe invoice event props: amount (invoice major units), currency, account_id, stripe_customer_id, source — no plan on invoice events. Subscription funnel events carry account_id + reason where applicable; plan/status live on identity. Do NOT send language on Mixpanel/GA People. Group Profile commercial attrs are written via Mixpanel /groups (fail-open); counters/backfill remain a separate wave.
 destinations:
   - mixpanel
   - ga4
@@ -136,6 +141,8 @@ events:
     props:
       - source
       - account_id
+      - account_country
+      - routing_region
       - profession
       - field_of_work
       - sessions_per_month
@@ -163,6 +170,8 @@ events:
     props:
       - operation
       - account_id
+      - account_country
+      - routing_region
       - user_id
       - stripe_customer_id
       - source
@@ -173,6 +182,8 @@ events:
     where: be
     props:
       - account_id
+      - account_country
+      - routing_region
       - stripe_customer_id
       - source
       - reason
@@ -182,6 +193,8 @@ events:
     where: be
     props:
       - account_id
+      - account_country
+      - routing_region
       - stripe_customer_id
       - source
       - reason
@@ -191,6 +204,8 @@ events:
     where: be
     props:
       - account_id
+      - account_country
+      - routing_region
       - stripe_customer_id
       - source
       - reason
@@ -202,6 +217,8 @@ events:
       - amount
       - currency
       - account_id
+      - account_country
+      - routing_region
       - stripe_customer_id
       - source
   anam_billing_invoice_payment_failed:
@@ -212,6 +229,8 @@ events:
       - amount
       - currency
       - account_id
+      - account_country
+      - routing_region
       - stripe_customer_id
       - source
   stripe_subscription_created:
@@ -348,12 +367,16 @@ events:
     where: be
     props:
       - account_id
+      - account_country
+      - routing_region
       - source
   anam_customer_create_failed:
     destinations: mixpanel
     where: both
     props:
       - account_id
+      - account_country
+      - routing_region
       - error_code
       - error_message
   anam_customer_updated:
@@ -361,41 +384,57 @@ events:
     where: be
     props:
       - account_id
+      - account_country
+      - routing_region
       - fields_changed
   anam_customer_archived:
     destinations: mixpanel
     where: both
     props:
       - account_id
+      - account_country
+      - routing_region
   anam_customer_unarchived:
     destinations: mixpanel
     where: both
     props:
       - account_id
+      - account_country
+      - routing_region
   anam_customer_registration_form_approved:
     destinations: mixpanel
     where: both
     props:
       - account_id
+      - account_country
+      - routing_region
   anam_customer_registration_form_shared:
     destinations: mixpanel
     where: both
     props:
       - account_id
+      - account_country
+      - routing_region
       - channel
   anam_calendar_opened:
-    destinations: mixpanel
+    destinations: both
+    ga4_name: anam_calendar_opened
     where: fe
     props:
       - account_id
+      - account_country
+      - routing_region
       - calendar_version
       - account_cohort
-      - service_region
+      - service_region # legacy country field, accepted from older browsers
   anam_calendar_adoption_changed:
-    destinations: mixpanel
+    destinations: both
+    ga4_name: anam_calendar_adoption_changed
     where: be
     props:
       - account_id
+      - account_country
+      - routing_region
       - adoption_stage
   anam_session_created:
     destinations: both
@@ -403,6 +442,8 @@ events:
     where: be
     props:
       - account_id
+      - account_country
+      - routing_region
       - batch
       - count
   anam_session_create_failed:
@@ -410,6 +451,8 @@ events:
     where: both
     props:
       - account_id
+      - account_country
+      - routing_region
       - error_code
       - error_message
   anam_session_updated:
@@ -417,11 +460,15 @@ events:
     where: both
     props:
       - account_id
+      - account_country
+      - routing_region
   anam_session_archived:
     destinations: mixpanel
     where: both
     props:
       - account_id
+      - account_country
+      - routing_region
       - batch
       - count
   anam_session_payment_updated:
@@ -429,45 +476,61 @@ events:
     where: both
     props:
       - account_id
+      - account_country
+      - routing_region
       - payment_status
   anam_clinical_record_requested:
     destinations: mixpanel
     where: both
     props:
       - account_id
+      - account_country
+      - routing_region
   anam_clinical_record_created:
     destinations: both
     ga4_name: anam_clinical_record_created
     where: be
     props:
       - account_id
+      - account_country
+      - routing_region
   anam_clinical_record_failed:
     destinations: mixpanel
     where: both
     props:
       - account_id
+      - account_country
+      - routing_region
       - error_code
   anam_session_recording_started:
     destinations: mixpanel
     where: fe
     props:
       - account_id
+      - account_country
+      - routing_region
   anam_session_recording_completed:
     destinations: mixpanel
     where: fe
     props:
       - account_id
+      - account_country
+      - routing_region
       - duration
   anam_session_transcription_completed:
     destinations: mixpanel
     where: be
     props:
       - account_id
+      - account_country
+      - routing_region
   anam_session_exported:
     destinations: mixpanel
     where: fe
     props:
       - account_id
+      - account_country
+      - routing_region
       - export_type
   # Inbox / calendar realtime reliability (ops only — never Mixpanel/GA4 product lexicon).
   # Emit on terminal or capacity failures only; never on successful grant renewals or bookings GETs.

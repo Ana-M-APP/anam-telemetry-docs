@@ -81,8 +81,8 @@ Só **eventos** neste arquivo. Identidade / People / Intercom / Sentry → [`ide
 
 | Event | Destination | Decision | Status |
 | --- | --- | --- | --- |
-| `anam_calendar_opened` | Mixpanel | Count authenticated visitors and distinct active Accounts by calendar version and Account cohort. A v2 view by a legacy Account is a preview. | live |
-| `anam_calendar_adoption_changed` | Mixpanel | Count distinct Accounts by persisted adoption milestone. An Account created with the native agenda has its own milestone. | live |
+| `anam_calendar_opened` | Mixpanel + GA4 | Count authenticated visitors and distinct active Accounts by calendar version and Account cohort. A v2 view by a legacy Account is a preview. | live |
+| `anam_calendar_adoption_changed` | Mixpanel + GA4 | Count distinct Accounts by persisted adoption milestone. An Account created with the native agenda has its own milestone. | live |
 
 ## 5. Backlog / not live
 
